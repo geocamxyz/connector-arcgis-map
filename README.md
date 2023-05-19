@@ -2,19 +2,19 @@
 A connector for the geocam-viewer.
 ### NPM Installation:
 ```
-npm install 'https://gitpkg.now.sh/geocamxyz/plugin-arcgis-map/src?v1.0.0'
+npm install 'https://gitpkg.now.sh/geocamxyz/connector-arcgis-map/src?v1.0.0'
 ```
 or for a particual commit version:
 ```
-npm install 'https://gitpkg.now.sh/geocamxyz/plugin-arcgis-mapsrc?ecade5a'
+npm install 'https://gitpkg.now.sh/geocamxyz/connector-arcgis-mapsrc?ecade5a'
 ```
 ### Import Map (External Loading):
 ```
-https://cdn.jsdelivr.net/gh/geocamxyz/plugin-arcgis-map@v1.0.0/dist/arcgis-map.js
+https://cdn.jsdelivr.net/gh/geocamxyz/connector-arcgis-map@v1.0.0/dist/arcgis-map.js
 ```
 or for a particual commit version:
 ```
-https://cdn.jsdelivr.net/gh/geocamxyz/plugin-arcgis-map@ecade5a/dist/arcgis-map.js
+https://cdn.jsdelivr.net/gh/geocamxyz/connector-arcgis-map@ecade5a/dist/arcgis-map.js
 ```
 ### Usage:
 The .js file can be imported into your .html file using the below code (This can be ignored if your using the NPM package).
@@ -22,7 +22,7 @@ The .js file can be imported into your .html file using the below code (This can
 <script type="importmap">
   {
     "imports": {
-      "arcgis-map": "https://cdn.jsdelivr.net/gh/geocamxyz/plugin-arcgis-map@v1.0.0/dist/arcgis-map.js"
+      "arcgis-map": "https://cdn.jsdelivr.net/gh/geocamxyz/connector-arcgis-map@v1.0.0/dist/arcgis-map.js"
     }
   }
 </script>
