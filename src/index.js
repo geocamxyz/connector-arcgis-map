@@ -22,7 +22,7 @@ export class GeocamViewerArcgisMap extends HTMLElement {
         parent.viewer.plugin(this.plugin);
       } else {
         console.error(
-          "GeocamViewerCompassNeedle must be a child of GeocamViewer"
+          "GeocamViewerArcgisMap must be a child of GeocamViewer"
         );
       }
     };
