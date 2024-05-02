@@ -1,6 +1,54 @@
 import { loadModules } from "esri-loader";
 
-const objectUrl = (base, obj) => base.replace(/\(\?\<(.+?)\>[^)]*\)/g, (x, g) => obj[g]);
+const objectUrl = (base, obj) =>
+  base.replace(/\(\?\<(.+?)\>[^)]*\)/g, (x, g) => obj[g]);
+
+Number.prototype.toRad = function () {
+  return this * (Math.PI / 180);
+};
+
+Number.prototype.toDeg = function () {
+  return this * (180 / Math.PI);
+};
+
+Number.prototype.to2DP = function () {
+  return parseFloat(this.toFixed(2));
+};
+
+const normalizePoint = function (point) {
+  if (Array.isArray(point)) return point;
+  return [
+    point.longitude ||
+      (point.coords
+        ? point.coords.longitude
+        : point.geometry
+        ? point.geometry.longitude
+        : null),
+    point.latitude ||
+      (point.coords
+        ? point.coords.latitude
+        : point.geometry
+        ? point.geometry.latitude
+        : null),
+  ];
+};
+
+const bearing = function (p1, p2) {
+  const [lon1, lat1] = normalizePoint(p1);
+  const [lon2, lat2] = normalizePoint(p2);
+  const destLng = lon2.toRad();
+  const destLat = lat2.toRad();
+  const startLng = lon1.toRad();
+  const startLat = lat1.toRad();
+  //return (Math.atan((lat1 - lat2) / (lon2 - lon1)) * (180 / Math.PI)) - 90;
+
+  const y = Math.sin(destLng - startLng) * Math.cos(destLat);
+  const x =
+    Math.cos(startLat) * Math.sin(destLat) -
+    Math.sin(startLat) * Math.cos(destLat) * Math.cos(destLng - startLng);
+  const brng = Math.atan2(y, x).toDeg();
+  return (brng + 360) % 360;
+};
 
 const node = (name, attrs = {}, content = "") => {
   const node = document.createElement(name);
@@ -13,9 +61,9 @@ const node = (name, attrs = {}, content = "") => {
 
 const injectStyle = (id, rules) => {
   if (!document.getElementById(id)) {
-  document
-    .getElementsByTagName("head")[0]
-    .prepend(node("STYLE", { type: "text/css" }, rules));
+    document
+      .getElementsByTagName("head")[0]
+      .prepend(node("STYLE", { type: "text/css" }, rules));
   }
   return true;
 };
@@ -55,7 +103,8 @@ export const arcgisMap = function (config = {}) {
   injectStyle("geocam-argis-map", STYLES);
 
   let viewer,
-    geocamLayers,
+    spaceDown,
+    geocamLayers = [],
     fovLayer,
     unsubFacing,
     unsubAutorotate,
@@ -68,17 +117,20 @@ export const arcgisMap = function (config = {}) {
     lastBrightness,
     abCheckbox,
     zoomStore,
+    viewlock,
     unsubZoom,
     centerStore,
     unsubCenter,
     clickable = true,
     fovMarkerStore;
 
-  const { mapView, prevNextPlugin, widgets, expands } = config;
+  const { mapView, prevNextPlugin, widgets, expands, src } = config;
+
+  const recenterBtn = document.createElement("div");
 
   const fovGraphic = function (ang, lng, lat) {
     // const proportion = ((1/(mapView.scale/70)) * 14) / 112;
-    const proportion = 1 / Math.sqrt(mapView.scale / 70); // fov size must be scale based as zoom levels can be set independently
+    const proportion = 0.5; // 1 / Math.sqrt(mapView.scale / 70); // fov size must be scale based as zoom levels can be set independently
     const width = 112 * proportion;
     const height = 202 * proportion;
     return {
@@ -90,8 +142,8 @@ export const arcgisMap = function (config = {}) {
       symbol: {
         type: "picture-marker", // autocasts as new PictureMarkerSymbol()
         url: fovPng,
-        width: `${width}px`,
-        height: `${height}px`,
+        width: `${width}`,
+        height: `${height}`,
         angle: ang,
       },
     };
@@ -99,10 +151,39 @@ export const arcgisMap = function (config = {}) {
 
   let fovG = fovGraphic(0, 0, 0);
 
+  const lockGraphic = function (geometry) {
+    return {
+      attributes: {
+        id: "lock",
+      },
+      geometry: {
+        type: "point",
+        latitude: geometry.latitude,
+        longitude: geometry.longitude,
+      },
+      symbol: {
+        type: "simple-marker", // autocasts as new SimpleMarkerSymbol()
+        path: "M12 4C7.31 4 3.07 5.9 0 8.98L12 21l5-5.01V8h5.92C19.97 5.51 16.16 4 12 4zm7 14h2v2h-2z M19 10h2v6h-2z",
+        color: [255, 0, 0, 0.8], //"rgba(0,0,0,0)", for some reason if color isn't changed then outline colour doesn't change either.
+        size: 24, // pixels
+        xoffset: 0,
+        yoffset: 12,
+        outline: {
+          // autocasts as new SimpleLineSymbol()
+          color: [255, 255, 255, 1],
+          width: 0, // points
+        },
+      },
+    };
+  };
+
+  let lockG = null;
+
   const updateFov = function (angle, lng, lat) {
     if (fovLayer) {
       fovLayer.removeAll();
       if (viewer.visible()) {
+        recenterBtn.classList.remove("esri-disabled");
         if (angle !== null) {
           if (autoRotate()) {
             mapView.rotation = angle * -1;
@@ -125,105 +206,31 @@ export const arcgisMap = function (config = {}) {
             fovMarkerStore([lng, lat]);
           }
         }
+      } else {
+        recenterBtn.classList.add("esri-disabled");
       }
     }
   };
 
-  const geocamLayer = function (layer) {
-    const fields = layer.fields;
+  const fieldMatches = function (field, name, options = {}) {
+    const reg = new RegExp(name, "i");
+    let match = reg.test(field.name) || reg.test(field.alias);
+    if (match && options.description) {
+      match = field.description ? true : false;
+    }
+    return match;
+  };
 
-    const fieldMatches = function (field, name, options = {}) {
-      const reg = new RegExp(name, "i");
-      let match = reg.test(field.name) || reg.test(field.alias);
-      if (match && options.description) {
-        match = field.description ? true : false;
-      }
-      return match;
-    };
-
-    const getBase = function (desc) {
-      //We need to convert &lt; and &gt; back to < and > respectively
-      if (desc) {
-        var txt = document.createElement("textarea");
-        txt.innerHTML = desc;
-        let result = txt.value;
-        return result;
-      } else {
-        return "https://image.geocam.xyz/";
-      }
-    };
-
-    const shot = fields.find((f) => fieldMatches(f, "shot"));
-    if (!shot) {
-      console.info(`Layer ${layer.title} not geocam - no shot field`);
-      return false;
+  const getBase = function (desc) {
+    //We need to convert &lt; and &gt; back to < and > respectively
+    if (desc) {
+      var txt = document.createElement("textarea");
+      txt.innerHTML = desc;
+      let result = txt.value;
+      return result;
     } else {
-      console.log("shot field is", shot);
+      return "https://image.geocam.xyz/";
     }
-    const filenames = fields.find((f) => fieldMatches(f, "filenames"));
-    let offsets, lengths;
-    if (!filenames) {
-      offsets = fields.find((f) => fieldMatches(f, "image_offsets"));
-      lengths = fields.find((f) => fieldMatches(f, "image_lengths"));
-      if (!offsets && !lengths) {
-        console.info(
-          `Layer ${layer.title} not geocam - filenames or image offsets/lengths fields required`
-        );
-        return false;
-      }
-    }
-    const hasFilenames = filenames ? true : false;
-    const yaw = fields.find((f) => fieldMatches(f, "yaw"));
-    if (!yaw) {
-      console.info(`Layer ${layer.title} not geocam - no yaw field`);
-      return false;
-    }
-    const rotation = fields.find((f) => fieldMatches(f, "rotation"));
-    if (!rotation) {
-      console.info(`Layer ${layer.title} not geocam - no rotation field`);
-      return false;
-    }
-    const datetime = fields.find((f) => fieldMatches(f, "time"));
-    if (!datetime) {
-      console.info(`Layer ${layer.title} not geocam - no datetime field`);
-      return false;
-    }
-    const calibration = fields.find((f) =>
-      fieldMatches(f, "calibration", { description: true })
-    );
-    if (!calibration) {
-      console.info(`Layer ${layer.title} not geocam - no calibration field`);
-      return false;
-    }
-    const capture = fields.find((f) => fieldMatches(f, "capture"));
-    if (!capture) {
-      console.info(`Layer ${layer.title} not geocam - no capture field`);
-      return false;
-    }
-    const rigId = fields.find((f) => fieldMatches(f, "rig_id"));
-    const brightness = fields.find((f) => fieldMatches(f, "brightness_scalar"));
-    if (brightness) {
-      abCheckbox.disabled = false;
-    }
-
-    const result = {
-      layer,
-      shot: shot.name,
-      filenames: hasFilenames ? filenames.name : null,
-      offsets: hasFilenames ? null : offsets.name,
-      lengths: hasFilenames ? null : lengths.name,
-      yaw: yaw.name,
-      rotation: rotation.name,
-      datetime: datetime.name,
-      brightness: brightness ? brightness.name : null,
-      base: getBase(filenames && filenames.description),
-      calibration: calibration.name,
-      rigId: rigId ? rigId.name : null,
-      calibrationBase: getBase(calibration.description),
-      capture: capture.name,
-    };
-
-    return result;
   };
 
   const shotUrls = (layer, attributes) => {
@@ -255,64 +262,6 @@ export const arcgisMap = function (config = {}) {
     }
   };
 
-  const setPrevNextGroups = async function (graphic, gcLayer) {
-    const layer = graphic.layer;
-    const capture = graphic.attributes[gcLayer.capture];
-    const shots = await layer.queryFeatures({
-      maxRecordCountFactor: 5,
-      where: `capture='${capture}'`,
-      geometry: graphic.geometry,
-      distance: 10,
-      spatialRelationship: "intersects",
-      returnGeometry: true,
-      inSpatialReference: { wkid: "4326" },
-      outSpatialReference: { wkid: "4326" },
-      orderByFields: gcLayer.shot,
-      outFields: ["*"]
-        .concat(
-          gcLayer.filenames
-            ? [gcLayer.filenames]
-            : [gcLayer.offsets, gcLayer.lengths]
-        )
-        .concat(gcLayer.brigtness ? [gcLayer.brigtness] : []),
-    });
-    prevNextPlugin.shots(shots.features);
-  };
-
-  let hasEditableLayers = false;
-  let allLayers = [];
-
-  const destructureLayers = function (obj) {
-    return obj.layers.items.map((l) => {
-      return l.layers ? destructureLayers(l) : l;
-    });
-  };
-
-  const ungroupLayers = function (obj) {
-    return destructureLayers(obj).flat();
-  };
-
-  const identifyGeocamLayers = async function (view) {
-    let result = [];
-    const layers = ungroupLayers(view.map);
-    for (let i = 0; i < layers.length; i++) {
-      const layer = layers[i];
-      await view.whenLayerView(layer);
-      layer.outFields = ["*"];
-      if (layer.editingEnabled) hasEditableLayers = true;
-      if (layer.fields) {
-        const fieldNames = layer.fields.map((f) => f.name);
-        allLayers.push({ layer, searchFields: fieldNames });
-        const geocamLayerDefn = geocamLayer(layer);
-        if (geocamLayerDefn) {
-          result.push(geocamLayerDefn);
-        }
-      }
-    }
-    console.log("done editable checks", hasEditableLayers);
-    return result;
-  };
-
   const isShot = function (graphic) {
     return geocamLayers.findIndex((obj) => obj.layer == graphic.layer);
   };
@@ -325,18 +274,20 @@ export const arcgisMap = function (config = {}) {
     }
   };
 
-  let lastCapture, lastShot;
+  let lastShot, lastLayer;
 
   const shotClick = function (graphic, shotLayerIndex) {
+    const lockedTo = viewlock();
+    console.log("shotclick with viewlock", lockedTo);
     const shotLayer = geocamLayers[shotLayerIndex];
-    setPrevNextGroups(graphic, shotLayer);
+    lastLayer = shotLayer;
     const shotIndex = graphic.attributes[shotLayer.shot];
-    lastCapture = graphic.attributes[shotLayer.capture];
     lastShot = shotIndex;
-    console.log("shot click set capture", lastCapture);
-    viewer.capture(lastCapture); // must be set nefore shot to avoid misload
-    console.log("shot click set shot", lastShot);
-    viewer.shot(lastShot);
+    viewer.shot(shotIndex);
+    if (prevNextPlugin) {
+      prevNextPlugin.prev(graphic.attributes.prev);
+      prevNextPlugin.next(graphic.attributes.next);
+    }
     const hemispheres = [0, 1, 2].map((i) =>
       objectUrl(shotLayer.calibrationBase, {
         camera: i,
@@ -352,6 +303,13 @@ export const arcgisMap = function (config = {}) {
         : null;
     lastBrightness = brightness;
     const urls = shotUrls(shotLayer, graphic.attributes);
+    if (lockedTo) {
+      // get the lat and lng of locked to location
+      // work out angle from this shot location to locked to location
+      // update rotation accordingly
+      const angle = bearing(graphic.geometry, lockedTo);
+      viewer.facing(angle);
+    }
     viewer.show(urls, yaw, hemispheres, rotation, brightness);
     updateFov(
       viewer.facing(),
@@ -361,9 +319,29 @@ export const arcgisMap = function (config = {}) {
     setLabel(graphic.attributes);
   };
 
+  let scaleChangeTimeout;
+
   const scaleChange = function (newValue, oldValue, propertyName, target) {
-    zoomStore(mapView.zoom);
-    updateFov(viewer.facing());
+    clearTimeout(scaleChangeTimeout);
+    scaleChangeTimeout = setTimeout(() => {
+      const scale = newValue;
+      const mod = Math.ceil(scale / 500); // was 1000 - more dense dots
+      const extent = mapView.extent;
+      const extStr = `${extent.xmin},${extent.ymin},${extent.xmax},${extent.ymax},${extent.spatialReference.wkid}`;
+      const definitionExpression = `mod(id,${mod}) = 0 AND extent = ${extStr}`;
+      geocamLayers.forEach((geocamLayer) => {
+        if (geocamLayer.layer.definitionExpression !== definitionExpression) {
+          geocamLayer.layer.definitionExpression = definitionExpression;
+          console.log(
+            "definition expression changed for",
+            geocamLayer.layer,
+            definitionExpression
+          );
+        }
+      });
+      zoomStore(mapView.zoom);
+      updateFov(viewer.facing());
+    }, 500);
   };
 
   const centerChange = function (newValue, oldValue, propertyName, target) {
@@ -375,6 +353,8 @@ export const arcgisMap = function (config = {}) {
     fovMarkerStore = viewer.store("marker");
     zoomStore = viewer.store("zoom");
     centerStore = viewer.store("center");
+
+    viewlock = viewer.store("viewlock");
 
     autoRotate = viewer.store("autorotate");
     autoRotateElement = node("DIV", { class: "geocam-auto-rotate" });
@@ -440,15 +420,30 @@ export const arcgisMap = function (config = {}) {
     });
     unsubVisible = viewer.visible((v) => updateFov(viewer.facing()));
 
-     console.log("should enter mapView.when");
-
     mapView.when(async () => {
       // identify geocam layers;
-      console.log("mapview loaded identidying layers");
-      geocamLayers = await identifyGeocamLayers(mapView);
 
       mapView.on("clickable", (e) => {
         clickable = e;
+      });
+
+      mapView.on("key-down", (event) => {
+        // stop map keyboard navigation when the viewer is visible so we can use it for the viewer
+        // (trapping all even thought prev and next plugin may not be included)
+        const prohibitedKeys = [
+          "ArrowUp",
+          "ArrowDown",
+          "ArrowRight",
+          "ArrowLeft",
+          "a",
+          "d",
+          "w",
+          "s", // w and s don't seem to be used for map actions but just in case that changes in the future.
+        ];
+        const keyPressed = event.key;
+        if (viewer.visible() && prohibitedKeys.indexOf(keyPressed) !== -1) {
+          event.stopPropagation();
+        }
       });
 
       // attach click to each layer to show image;
@@ -458,28 +453,113 @@ export const arcgisMap = function (config = {}) {
           x: evt.x,
           y: evt.y,
         };
-        mapView.hitTest(screenPoint).then((hit) => {
-          if (hit.results && hit.results.length > 0) {
-            for (var i = 0; i < hit.results.length; i++) {
-              const graphic = hit.results[i].graphic;
-              const shotLayerIndex = isShot(graphic);
-              if (shotLayerIndex >= 0) {
-                shotClick(graphic, shotLayerIndex);
-                break;
+        console.log("immediate-click", evt, screenPoint);
+        if (spaceDown) {
+          console.log("space wqas down");
+          const coords = mapView.toMap(screenPoint);
+          viewlock(coords);
+          if (lockG) {
+            mapView.graphics.removeAll();
+          }
+          lockG = lockGraphic(coords);
+          mapView.graphics.add(lockG);
+          if (viewer.visible()) {
+            const angle = bearing(fovG.geometry, coords);
+            viewer.facing(angle);
+          }
+        } else {
+          mapView.hitTest(screenPoint).then((hit) => {
+            if (hit.results && hit.results.length > 0) {
+              for (var i = 0; i < hit.results.length; i++) {
+                const graphic = hit.results[i].graphic;
+                const shotLayerIndex = isShot(graphic);
+                if (shotLayerIndex >= 0) {
+                  if (Object.entries(graphic.attributes).length < 2) {
+                    graphic.layer
+                      .queryFeatures({
+                        objectIds: [graphic.attributes.id],
+                        returnGeometry: true,
+                        outFields: "*",
+                        where: graphic.layer.definitionExpression,
+                      })
+                      .then((results) => {
+                        if (results.features.length > 0) {
+                          shotClick(results.features[0], shotLayerIndex);
+                        }
+                      });
+                  } else {
+                    shotClick(graphic, shotLayerIndex);
+                  }
+                  break;
+                }
               }
             }
-          }
-        });
+          });
+        }
       });
 
       // show and rotate FOV graphic on rotation
 
-      const [GraphicsLayer, watchUtils] = await loadModules(
-        ["esri/layers/GraphicsLayer", "esri/core/reactiveUtils"],
-        {
-          version: "4.26",
-        }
-      );
+      const [GraphicsLayer, watchUtils, FeatureLayer] = await loadModules([
+        "esri/layers/GraphicsLayer",
+        "esri/core/watchUtils",
+        "esri/layers/FeatureLayer",
+      ]);
+
+      if (src) {
+        // add geocam layers
+        const shotsUrl = `${src}/0`;
+        console.log("shots url is", shotsUrl);
+        const shotsLayer = new FeatureLayer({
+          url: shotsUrl,
+          definitionExpression: "mod(id,100) = 0", // start with agressive simplifaction - view should get scale change early on to override this
+        });
+        mapView.map.add(shotsLayer);
+        shotsLayer.when((layer) => {
+          const fields = layer.fields;
+
+          const filenames = fields.find((f) => fieldMatches(f, "filenames"));
+          const calibration = fields.find((f) =>
+            fieldMatches(f, "calibration")
+          );
+          geocamLayers.push({
+            layer: shotsLayer,
+            shot: "id",
+            filenames: "filenames",
+            yaw: "yaw",
+            rotation: "rotation_matrix",
+            datetime: "utc_time",
+            brightness: null,
+            base: getBase(filenames && filenames.description),
+            calibration: "calibration",
+            rigId: null,
+            calibrationBase: getBase(calibration.description),
+            capture: "capture",
+          });
+        });
+
+        const pointFeaturesUrl = `${src}/1`;
+        console.log("points features url is", pointFeaturesUrl);
+        const pointsFeaturesLayer = new FeatureLayer({
+          url: pointFeaturesUrl,
+          popupEnabled: true,
+          popupTemplate: {
+            title: "{reference}",
+            content: [
+              {
+                type: "fields",
+                fieldInfos: [
+                  {
+                    fieldName: "embed",
+                    label: "content",
+                  },
+                ],
+              },
+            ],
+          },
+        });
+        mapView.map.add(pointsFeaturesLayer);
+      }
 
       fovLayer = new GraphicsLayer({
         title: "GeoCam Field of View",
@@ -489,6 +569,46 @@ export const arcgisMap = function (config = {}) {
         },
       });
       mapView.map.layers.add(fovLayer);
+
+      const copyBtn = document.createElement("div");
+      copyBtn.className = "esri-widget--button";
+      copyBtn.title = "Copy short URL to clipboad";
+      copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" height="24" width="24"><path d="M23 15H11.707l2.646 2.646-.707.707L9.793 14.5l3.854-3.854.707.707L11.707 14H23zm-13-5H6v1h4zm-4 5h2v-1H6zM3 4h3V3h3a2 2 0 0 1 4 0h3v1h3v9h-1V5h-2v2H6V5H4v16h14v-5h1v6H3zm4 2h8V4h-3V2.615A.615.615 0 0 0 11.386 2h-.771a.615.615 0 0 0-.615.615V4H7zM6 19h4v-1H6z"></path></svg>
+    <span class="esri-icon-font-fallback-text">Copy short URL to clipboad</span>`;
+      copyBtn.addEventListener("click", async () => {
+        const url = `${document.location.protocol}//link.${
+          document.location.host.startsWith("localhost")
+            ? "localhost:3092"
+            : "geocam.xyz"
+        }/`;
+        try {
+          const res = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              link: { url: document.location.toString() },
+            }),
+          });
+          const json = await res.json();
+          await navigator.clipboard.writeText(json.link);
+          alert(`Url copied to clipboard: ${json.link}`);
+        } catch (err) {
+          alert(
+            `Sorry, the short URL could not be copied to the clipboard: ${err}`
+          );
+        }
+      });
+      mapView.ui.add(copyBtn, "top-right");
+
+      recenterBtn.className = "esri-widget--button";
+      recenterBtn.title = "Recenter map on selected shot";
+      recenterBtn.innerHTML = `<span aria-hidden="true" class="esri-icon-zoom-to-object"></span><span class="esri-icon-font-fallback-text">Expand</span>`;
+      recenterBtn.addEventListener("click", () => {
+        mapView.goTo({
+          center: [fovG.geometry.longitude, fovG.geometry.latitude],
+        });
+      });
+      mapView.ui.add(recenterBtn, "top-right");
 
       unsubFacing = viewer.facing((f) => {
         updateFov(f);
@@ -513,44 +633,37 @@ export const arcgisMap = function (config = {}) {
         }
       }
 
-      watchUtils.watch(() => mapView.scale, scaleChange);
-       watchUtils.watch(() => mapView.center, centerChange);
+      watchUtils.watch(mapView, "scale", scaleChange);
+      scaleChange(mapView.scale); // force initial scale
+      watchUtils.watch(mapView, "center", centerChange);
 
       viewer.shot((shot) => {
-        const capture = viewer.capture();
-        if (shot && capture && (shot !== lastShot || capture !== lastCapture)) {
+        const id = parseInt(
+          typeof shot === "object" && shot !== null ? shot.id : shot
+        );
+        if (id && id !== lastShot) {
           console.log("Got shot", shot);
-          // check if there is already a cached graphic that matches and just shotClick that.
-          const current = prevNextPlugin.currentShot();
-          if (
-            current &&
-            current.attributes.shot === shot &&
-            current.attributes.capture === capture
-          ) {
-            const shotLayerIndex = isShot(current);
-            shotClick(current, shotLayerIndex);
-          } else {
-            geocamLayers.forEach((gcl, i) => {
-              const layer = gcl.layer;
-              viewer.resetProgress();
-              console.log("Querying layer for shot", layer, shot, capture);
-              layer
-                .queryFeatures({
-                  where: `shot='${shot}' AND capture='${capture}'`,
-                  returnGeometry: true,
-                  outSpatialReference: { wkid: "4326" },
-                  outFields: "*",
-                })
-                .then((results) => {
-                  // eslint-disable-line no-loop-func
-                  console.log("Go results for layer", layer, results);
-                  if (results.features.length > 0) {
-                    const graphic = results.features[0];
-                    shotClick(graphic, i);
-                  }
-                });
-            });
-          }
+          geocamLayers.forEach((gcl, i) => {
+            const layer = gcl.layer;
+            viewer.resetProgress();
+            console.log("Querying layer for shot", layer, id);
+            debugger;
+            layer
+              .queryFeatures({
+                objectIds: [id],
+                returnGeometry: true,
+                outFields: "*",
+                where: layer.definitionExpression,
+              })
+              .then((results) => {
+                // eslint-disable-line no-loop-func
+                console.log("Got results for layer", layer, results);
+                if (results.features.length > 0) {
+                  const graphic = results.features[0];
+                  shotClick(graphic, i);
+                }
+              });
+          });
         } else {
           if (!shot) viewer.hide();
         }
@@ -558,7 +671,35 @@ export const arcgisMap = function (config = {}) {
     });
   };
 
+  var handleKeyDown = function (evt) {
+    const key = evt.key;
+    switch (evt.key) {
+      case "Escape": {
+        viewlock(null);
+        mapView.graphics.removeAll();
+        break;
+      }
+      case " ": {
+        spaceDown = true;
+      }
+    }
+  };
+
+  var handleKeyUp = function (evt) {
+    const key = evt.key;
+    switch (evt.key) {
+      case " ": {
+        spaceDown = false;
+      }
+    }
+  };
+
+  document.addEventListener("keydown", handleKeyDown);
+  document.addEventListener("keyup", handleKeyUp);
+
   this.destroy = function () {
+    document.removeEventListener("keydown", handleKeyDown);
+    document.removeEventListener("keyup", handleKeyUp);
     unsubFacing();
     unsubAutorotate();
     unsubAutobrightness();

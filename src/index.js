@@ -10,14 +10,15 @@ export class GeocamViewerArcgisMap extends HTMLElement {
   connectedCallback() {
     this.link = function (mapView) {
       console.log("linking to ", mapView);
-
+      const src = this.getAttribute("src");
+      if (!src) console.warn("No src attribute on geocam-viewer-arcgis-map");
       const parent = this.parentNode;
       if (parent.viewer && parent.viewer.plugin) {
         const prevnext = document.getElementsByTagName(
           "geocam-viewer-prev-next-control"
         )[0];
         const prevNextPlugin = prevnext && prevnext.plugin;
-        this.plugin = new arcgisMap({ mapView, prevNextPlugin });
+        this.plugin = new arcgisMap({ mapView, prevNextPlugin, src });
         parent.viewer.plugin(this.plugin);
       } else {
         console.error(
