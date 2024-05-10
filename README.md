@@ -28,7 +28,7 @@ The .js file can be imported into your .html file using the below code (This can
 <script type="importmap">
   {
     "imports": {
-      "geocam-viewer": "https://cdn.jsdelivr.net/gh/geocamxyz/connector-arcgis-map@2.0.3/dist/arcgis-map.js"
+      "arcgis-map": "https://cdn.jsdelivr.net/gh/geocamxyz/connector-arcgis-map@2.0.3/dist/arcgis-map.js"
     }
   }
 </script>
