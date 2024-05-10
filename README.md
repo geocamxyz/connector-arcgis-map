@@ -1,5 +1,6 @@
 # Arcgis Map
-A connector for the geocam-viewer to tie it to a shots feature layer displayed on an arcgis webmap
+A connector for the [geocamxyz/geocam-viewer](https://github.com/geocamxyz/geocam-viewer) defined as a web component which ties the viewer to a shots feature layer displayed on an arcgis webmap
+
 ### NPM Installation:
 ```
 npm install 'https://gitpkg.now.sh/geocamxyz/connector-arcgis-map/src?v2.0.3'
@@ -37,7 +38,7 @@ The viewer can then be imported via a module script or using the npm package and
 import "arcgis-map"
 ```
 ### Setup:
-The connector can be setup using the below code. It requires the [geocamxyz/geocam-viewer]https://github.com/geocamxyz/geocam-viewer custom tag as the parent element.  There also needs to be a arcgis map created which calls the connectors link method with the mapview to correctly complete initialization.
+The connector can be setup using the below code. It requires the [geocamxyz/geocam-viewer](https://github.com/geocamxyz/geocam-viewer) custom tag as the parent element.  There also needs to be a arcgis map created which calls the connectors link method with the mapview to correctly complete initialization.
 ```
 <geocam-viewer>
   <geocam-viewer-arcgis-map src="/arcgis/rest/services/0wlsvpg_3/FeatureServer"></geocam-viewer-arcgis-map>
