@@ -13,7 +13,9 @@ export class GeocamViewerArcgisMap extends HTMLElement {
       const src = this.getAttribute("src");
       if (!src) console.warn("No src attribute on geocam-viewer-arcgis-map");
       const parent = this.parentNode;
-      if (parent.viewer && parent.viewer.plugin) {
+      this.viewer = parent.viewer;
+      this.mapView = mapView;
+      if (this.viewer && this.viewer.plugin) {
         const prevnext = document.getElementsByTagName(
           "geocam-viewer-prev-next-control"
         )[0];
@@ -21,9 +23,7 @@ export class GeocamViewerArcgisMap extends HTMLElement {
         this.plugin = new arcgisMap({ mapView, prevNextPlugin, src });
         parent.viewer.plugin(this.plugin);
       } else {
-        console.error(
-          "GeocamViewerArcgisMap must be a child of GeocamViewer"
-        );
+        console.error("GeocamViewerArcgisMap must be a child of GeocamViewer");
       }
     };
     console.log("GeocamViewerArcgisMap connected");
@@ -31,6 +31,8 @@ export class GeocamViewerArcgisMap extends HTMLElement {
 
   disconnectedCallback() {
     this.plugin = null;
+    this.viewer = null;
+    this.mapView = null;
     console.log("GeocamViewerArcgisMap disconnected");
     // Clean up the viewer
   }
