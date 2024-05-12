@@ -421,7 +421,6 @@ export const arcgisMap = function (config = {}) {
     unsubVisible = viewer.visible((v) => updateFov(viewer.facing()));
 
     mapView.when(async () => {
-      // identify geocam layers;
 
       mapView.on("clickable", (e) => {
         clickable = e;
