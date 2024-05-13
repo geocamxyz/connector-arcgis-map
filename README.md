@@ -7,7 +7,7 @@ npm install 'https://gitpkg.now.sh/geocamxyz/connector-arcgis-map/src?v2.0.3'
 ```
 or for a particual commit version:
 ```
-npm install 'https://gitpkg.now.sh/geocamxyz/connector-arcgis-mapsrc?ecade5a'
+npm install 'https://gitpkg.now.sh/geocamxyz/connector-arcgis-map/src?ecade5a'
 ```
 ### Import Map (External Loading):
 ```
