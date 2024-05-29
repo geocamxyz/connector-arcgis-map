@@ -335,7 +335,13 @@ const le = function(e) {
         "title",
         m ? "turn auto-brightness off" : "turn auto-brightness on"
       ), t.reload(Y() ? I : "[1,1,1]");
-    }), M = t.visible((m) => O(t.facing())), a.when(async () => {
+    }), M = t.visible((m) => O(t.facing()));
+    const [x, P, y] = await Ze([
+      "esri/layers/GraphicsLayer",
+      "esri/core/watchUtils",
+      "esri/layers/FeatureLayer"
+    ]);
+    if (a.when(async () => {
       a.on("clickable", (u) => {
         K = u;
       }), a.on("key-down", (u) => {
@@ -440,13 +446,7 @@ const le = function(e) {
           });
         })) : u || t.hide();
       });
-    });
-    const [x, P, y] = await Ze([
-      "esri/layers/GraphicsLayer",
-      "esri/core/watchUtils",
-      "esri/layers/FeatureLayer"
-    ]);
-    if (C) {
+    }), C) {
       const m = `${C}/0`;
       console.log("shots url is", m);
       const w = new y({
@@ -455,9 +455,7 @@ const le = function(e) {
         // start with agressive simplifaction - view should get scale change early on to override this
       });
       a.map.add(w), w.when((W) => {
-        const u = W.fields, g = u.find((p) => ee(p, "filenames")), f = u.find(
-          (p) => ee(p, "calibration")
-        );
+        const u = W.fields, g = u.find((p) => ee(p, "filenames")), f = u.find((p) => ee(p, "calibration"));
         c.push({
           layer: w,
           shot: "id",
