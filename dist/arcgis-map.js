@@ -234,7 +234,7 @@ const le = function(e) {
       var l = document.createElement("textarea");
       return l.innerHTML = o, l.value;
     } else
-      return "https://image.geocam.xyz/";
+      return ""; // "https://image.geocam.xyz/";
   }, we = (o, l) => {
     const s = o.base;
     if (o.filenames)

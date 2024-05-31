@@ -229,7 +229,7 @@ export const arcgisMap = function (config = {}) {
       let result = txt.value;
       return result;
     } else {
-      return "https://image.geocam.xyz/";
+      return ""; // "https://image.geocam.xyz/";
     }
   };
 

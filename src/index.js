@@ -16,12 +16,18 @@ export class GeocamViewerArcgisMap extends HTMLElement {
       this.viewer = parent.viewer;
       this.mapView = mapView;
       if (this.viewer && this.viewer.plugin) {
-        const prevnext = document.getElementsByTagName(
+        const prevnext = parent.getElementsByTagName(
           "geocam-viewer-prev-next-control"
         )[0];
         const prevNextPlugin = prevnext && prevnext.plugin;
         this.plugin = new arcgisMap({ mapView, prevNextPlugin, src });
         parent.viewer.plugin(this.plugin);
+        const screenShot = parent.getElementsByTagName(
+          "geocam-viewer-screen-shot"
+        )[0];
+        if (screenShot && screenShot.plugin) {
+          screenShot.plugin.arcgisView(mapView);
+        }
       } else {
         console.error("GeocamViewerArcgisMap must be a child of GeocamViewer");
       }
