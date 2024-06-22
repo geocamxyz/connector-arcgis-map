@@ -105,7 +105,7 @@ const fovPng = `data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPUAAAGVCAMAAAAR7E
 
 export const arcgisMap = function (config = {}) {
   const STYLES = `
-      .geocam-auto-rotate-checkbox, .geocam-auto-brightness-checkbox {
+      .geocam-auto-rotate-checkbox {
         display: none;
       }
 
@@ -115,20 +115,6 @@ export const arcgisMap = function (config = {}) {
 
       .geocam-auto-rotate-checkbox:checked +.geocam-auto-rotate-span {
           background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' enable-background='new 0 0 24 24' viewBox='0 0 24 24' fill='currentColor'><rect fill='none' height='24' width='24'/><path d='M18.6,19.5H21v2h-6v-6h2v2.73c1.83-1.47,3-3.71,3-6.23c0-4.07-3.06-7.44-7-7.93V2.05c5.05,0.5,9,4.76,9,9.95 C22,14.99,20.68,17.67,18.6,19.5z M4,12c0-2.52,1.17-4.77,3-6.23V8.5h2v-6H3v2h2.4C3.32,6.33,2,9.01,2,12c0,5.19,3.95,9.45,9,9.95 v-2.02C7.06,19.44,4,16.07,4,12z M16.24,8.11l-5.66,5.66l-2.83-2.83l-1.41,1.41l4.24,4.24l7.07-7.07L16.24,8.11z'/></svg>")
-      }
-
-      .geocam-auto-brightness-span {
-          background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'  enable-background='new 0 0 24 24' viewBox='0 0 24 24'  fill='currentColor'><path d='M0 0h24v24H0V0z' fill='none'/><path d='M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zm-2 5.79V18h-3.52L12 20.48 9.52 18H6v-3.52L3.52 12 6 9.52V6h3.52L12 3.52 14.48 6H18v3.52L20.48 12 18 14.48zM12 6.5c-3.03 0-5.5 2.47-5.5 5.5s2.47 5.5 5.5 5.5 5.5-2.47 5.5-5.5-2.47-5.5-5.5-5.5zm0 9c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z'/></svg>");
-      }
-
-      .geocam-auto-brightness-checkbox:checked +.geocam-auto-brightness-span {
-          background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' enable-background='new 0 0 24 24' viewBox='0 0 24 24' fill='currentColor'><path d='M0 0h24v24H0V0z' fill='none'/><path d='M11 7l-3.2 9h1.9l.7-2h3.2l.7 2h1.9L13 7h-2zm-.15 5.65L12 9l1.15 3.65h-2.3zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zm-2 5.79V18h-3.52L12 20.48 9.52 18H6v-3.52L3.52 12 6 9.52V6h3.52L12 3.52 14.48 6H18v3.52L20.48 12 18 14.48z'/></svg>")
-      }
-
-     .geocam-auto-brightness-checkbox:disabled +.geocam-auto-brightness-span {
-          opacity: 50%;
-          cursor: auto;
-          background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'  enable-background='new 0 0 24 24' viewBox='0 0 24 24'  fill='currentColor'><path d='M0 0h24v24H0V0z' fill='none'/><path d='M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zm-2 5.79V18h-3.52L12 20.48 9.52 18H6v-3.52L3.52 12 6 9.52V6h3.52L12 3.52 14.48 6H18v3.52L20.48 12 18 14.48zM12 6.5c-3.03 0-5.5 2.47-5.5 5.5s2.47 5.5 5.5 5.5 5.5-2.47 5.5-5.5-2.47-5.5-5.5-5.5zm0 9c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z'/></svg>");
       }
 
     `;
@@ -145,10 +131,8 @@ export const arcgisMap = function (config = {}) {
     unsubVisible,
     autoRotateElement,
     autoRotate,
-    autoBrightnessElement,
     autoBrightness,
     lastBrightness,
-    abCheckbox,
     zoomStore,
     viewlock,
     unsubZoom,
@@ -446,33 +430,8 @@ export const arcgisMap = function (config = {}) {
     });
 
     autoBrightness = viewer.store("autobrightness");
-    autoBrightnessElement = node("DIV", { class: "geocam-auto-brightness" });
-    const abLabel = node("LABEL", { class: "geocam-auto-brightness-label" });
-    abCheckbox = node("INPUT", {
-      type: "checkbox",
-      class: "geocam-auto-brightness-checkbox",
-    });
-    const abSpan = node(
-      "SPAN",
-      { class: "geocam-auto-brightness-span geocam-viewer-control-button" },
-      " Autobrightness"
-    );
-    abCheckbox.disabled = true;
-    abCheckbox.checked = autoBrightness();
-    abCheckbox.addEventListener("change", () => {
-      autoBrightness(abCheckbox.checked);
-    });
-    abLabel.appendChild(abCheckbox);
-    abLabel.appendChild(abSpan);
-    autoBrightnessElement.appendChild(abLabel);
-    viewer.addControl(autoBrightnessElement, "left-top");
-    // viewer.wrapper.appendChild(autoRotateElement);
     unsubAutobrightness = autoBrightness((ab) => {
-      autoBrightnessElement.setAttribute(
-        "title",
-        ab ? "turn auto-brightness off" : "turn auto-brightness on"
-      );
-      viewer.reload(autoBrightness() ? lastBrightness : "[1,1,1]");
+      viewer.reload(ab ? lastBrightness : "[1,1,1]");
     });
     unsubVisible = viewer.visible((v) => updateFov(viewer.facing()));
 
@@ -774,6 +733,5 @@ export const arcgisMap = function (config = {}) {
     unsubVisible();
     mapView.map.removeLayer(fovLayer);
     viewer.wrapper.removeChild(autoRotateElement);
-    viewer.wrapper.removeChild(autoBrightnessElement);
   };
 };
