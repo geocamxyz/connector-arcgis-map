@@ -600,6 +600,8 @@ export const arcgisMap = function (config = {}) {
       });
     });
 
+    mapView.when(() => {
+
     if (src) {
       // add geocam layers
       const shotsUrl = `${src}/0`;
@@ -676,6 +678,9 @@ export const arcgisMap = function (config = {}) {
       },
     });
     mapView.map.layers.add(fovLayer);
+
+    });
+    
   };
 
   var handleKeyDown = function (evt) {
