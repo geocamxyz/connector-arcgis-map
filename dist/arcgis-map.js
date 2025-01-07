@@ -341,7 +341,7 @@ const le = function(e) {
       "esri/core/watchUtils",
       "esri/layers/FeatureLayer"
     ]);
-    if (a.when(async () => {
+    a.when(async () => {
       a.on("clickable", (u) => {
         K = u;
       }), a.on("key-down", (u) => {
@@ -446,69 +446,71 @@ const le = function(e) {
           });
         })) : u || t.hide();
       });
-    }), C) {
-      const m = `${C}/0`;
-      console.log("shots url is", m);
-      const w = new y({
-        url: m,
-        definitionExpression: "mod(id,100) = 0"
-        // start with agressive simplifaction - view should get scale change early on to override this
-      });
-      a.map.add(w), w.when((W) => {
-        const u = W.fields, b = u.find((p) => ee(p, "filenames")), h = u.find((p) => ee(p, "calibration"));
-        c.push({
-          layer: w,
-          shot: "id",
-          filenames: "filenames",
-          yaw: "yaw",
-          rotation: "rotation_matrix",
-          datetime: "utc_time",
-          brightness: null,
-          base: te(b && b.description),
-          calibration: "calibration",
-          rigId: null,
-          calibrationBase: te(h.description),
-          capture: "capture"
+    }), a.when(() => {
+      if (C) {
+        const m = `${C}/0`;
+        console.log("shots url is", m);
+        const w = new y({
+          url: m,
+          definitionExpression: "mod(id,100) = 0"
+          // start with agressive simplifaction - view should get scale change early on to override this
         });
-        const A = {
-          xmin: -5e-3,
-          ymin: -5e-3,
-          xmax: 5e-3,
-          ymax: 5e-3
-        }, v = Object.keys(A), L = {};
-        for (let p = 0; p < v.length; p++)
-          L[v[p]] = parseFloat(W.fullExtent[v[p]]) + A[v[p]];
-        a.extent = L;
-      });
-      const V = `${C}/1`;
-      console.log("points features url is", V);
-      const R = new y({
-        url: V,
-        popupEnabled: !0,
-        popupTemplate: {
-          title: "{reference}",
-          content: [
-            {
-              type: "fields",
-              fieldInfos: [
-                {
-                  fieldName: "embed",
-                  label: "content"
-                }
-              ]
-            }
-          ]
-        }
-      });
-      a.map.add(R);
-    }
-    d = new x({
-      title: "GeoCam Field of View",
-      geometryType: "point",
-      spatialReference: {
-        wkid: 4326
+        a.map.add(w), w.when((W) => {
+          const u = W.fields, b = u.find((p) => ee(p, "filenames")), h = u.find((p) => ee(p, "calibration"));
+          c.push({
+            layer: w,
+            shot: "id",
+            filenames: "filenames",
+            yaw: "yaw",
+            rotation: "rotation_matrix",
+            datetime: "utc_time",
+            brightness: null,
+            base: te(b && b.description),
+            calibration: "calibration",
+            rigId: null,
+            calibrationBase: te(h.description),
+            capture: "capture"
+          });
+          const A = {
+            xmin: -5e-3,
+            ymin: -5e-3,
+            xmax: 5e-3,
+            ymax: 5e-3
+          }, v = Object.keys(A), L = {};
+          for (let p = 0; p < v.length; p++)
+            L[v[p]] = parseFloat(W.fullExtent[v[p]]) + A[v[p]];
+          a.extent = L;
+        });
+        const V = `${C}/1`;
+        console.log("points features url is", V);
+        const R = new y({
+          url: V,
+          popupEnabled: !0,
+          popupTemplate: {
+            title: "{reference}",
+            content: [
+              {
+                type: "fields",
+                fieldInfos: [
+                  {
+                    fieldName: "embed",
+                    label: "content"
+                  }
+                ]
+              }
+            ]
+          }
+        });
+        a.map.add(R);
       }
-    }), a.map.layers.add(d);
+      d = new x({
+        title: "GeoCam Field of View",
+        geometryType: "point",
+        spatialReference: {
+          wkid: 4326
+        }
+      }), a.map.layers.add(d);
+    });
   };
   var ae = function(n) {
     switch (n.key, n.key) {
