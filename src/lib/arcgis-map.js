@@ -420,7 +420,6 @@ export const arcgisMap = function (config = {}) {
     });
     unsubVisible = viewer.visible((v) => updateFov(viewer.facing()));
 
-
     const [GraphicsLayer, watchUtils, FeatureLayer] = await loadModules([
       "esri/layers/GraphicsLayer",
       "esri/core/watchUtils",
@@ -600,8 +599,6 @@ export const arcgisMap = function (config = {}) {
       });
     });
 
-    mapView.when(() => {
-
     if (src) {
       // add geocam layers
       const shotsUrl = `${src}/0`;
@@ -668,19 +665,23 @@ export const arcgisMap = function (config = {}) {
         },
       });
       mapView.map.add(pointsFeaturesLayer);
+
+      fovLayer = new GraphicsLayer({
+        title: "GeoCam Field of View",
+        geometryType: "point",
+        spatialReference: {
+          wkid: 4326,
+        },
+      });
+      mapView.map.layers.add(fovLayer);
+
+      // move geocam layers to top
+      mapView.when(() => {
+        mapView.map.reorder(fovLayer, 1000);
+        mapView.map.reorder(shotsLayer, 1000);
+        mapView.map.reorder(pointsFeaturesLayer, 1000);
+      });
     }
-
-    fovLayer = new GraphicsLayer({
-      title: "GeoCam Field of View",
-      geometryType: "point",
-      spatialReference: {
-        wkid: 4326,
-      },
-    });
-    mapView.map.layers.add(fovLayer);
-
-    });
-    
   };
 
   var handleKeyDown = function (evt) {
