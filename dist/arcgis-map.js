@@ -345,7 +345,7 @@ const le = function(e) {
       a.on("clickable", (u) => {
         K = u;
       }), a.on("key-down", (u) => {
-        if (u.target.closest("input"))
+        if (u.target.closest("input,calcite-input"))
           return;
         const b = [
           "ArrowUp",
