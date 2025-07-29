@@ -432,7 +432,7 @@ export const arcgisMap = function (config = {}) {
       });
 
       mapView.on("key-down", (event) => {
-            if (event.target.closest('input')) return;
+            if (event.target.closest('input,calcite-input')) return;
         // stop map keyboard navigation when the viewer is visible so we can use it for the viewer
         // (trapping all even thought prev and next plugin may not be included)
         const prohibitedKeys = [
