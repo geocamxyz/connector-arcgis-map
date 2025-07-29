@@ -75,17 +75,17 @@ function Pe(e) {
   e === void 0 && (e = {});
   var o = {};
   [je, e].forEach(function(c) {
-    for (var u in c)
-      Object.prototype.hasOwnProperty.call(c, u) && (o[u] = c[u]);
+    for (var d in c)
+      Object.prototype.hasOwnProperty.call(c, d) && (o[d] = c[d]);
   });
   var t = o.version, r = o.url || ge(t);
-  return new de.Promise(function(c, u) {
+  return new de.Promise(function(c, d) {
     var f = he();
     if (f) {
       var z = f.getAttribute("src");
-      z !== r ? u(new Error("The ArcGIS API for JavaScript is already loaded (".concat(z, ")."))) : J() ? c(f) : ce(f, c, u);
+      z !== r ? d(new Error("The ArcGIS API for JavaScript is already loaded (".concat(z, ")."))) : J() ? c(f) : ce(f, c, d);
     } else if (J())
-      u(new Error("The ArcGIS API for JavaScript is already loaded."));
+      d(new Error("The ArcGIS API for JavaScript is already loaded."));
     else {
       var k = o.css;
       if (k) {
@@ -94,7 +94,7 @@ function Pe(e) {
       }
       f = He(r), ce(f, function() {
         f.setAttribute("data-esri-loader", "loaded"), c(f);
-      }, u), document.body.appendChild(f);
+      }, d), document.body.appendChild(f);
     }
   });
 }
@@ -102,8 +102,8 @@ function ie(e) {
   return new de.Promise(function(o, t) {
     var r = window.require.on("error", t);
     window.require(e, function() {
-      for (var c = [], u = 0; u < arguments.length; u++)
-        c[u] = arguments[u];
+      for (var c = [], d = 0; d < arguments.length; d++)
+        c[d] = arguments[d];
       r.remove(), o(c);
     });
   });
@@ -132,7 +132,7 @@ const le = function(e) {
     e.latitude || (e.coords ? e.coords.latitude : e.geometry ? e.geometry.latitude : null)
   ];
 }, ue = function(e, o) {
-  const [t, r] = le(e), [c, u] = le(o), f = c.toRad(), z = u.toRad(), k = t.toRad(), M = r.toRad(), j = Math.sin(f - k) * Math.cos(z), H = Math.cos(M) * Math.sin(z) - Math.sin(M) * Math.cos(z) * Math.cos(f - k);
+  const [t, r] = le(e), [c, d] = le(o), f = c.toRad(), z = d.toRad(), k = t.toRad(), M = r.toRad(), j = Math.sin(f - k) * Math.cos(z), H = Math.cos(M) * Math.sin(z) - Math.sin(M) * Math.cos(z) * Math.cos(f - k);
   return (Math.atan2(j, H).toDeg() + 360) % 360;
 }, T = (e, o = {}, t = "") => {
   const r = document.createElement(e);
@@ -168,7 +168,7 @@ const le = function(e) {
       }
 
     `);
-  let t, r, c = [], u, f, z, k, M, j, H, Z, Y, I, U, F, R, be, Q, ve, K = !0, $;
+  let t, r, c = [], d, f, z, k, M, j, H, Z, Y, I, U, F, R, be, Q, ve, K = !0, $;
   const { mapView: a, prevNextPlugin: q, widgets: Be, expands: Re, src: C } = e, G = document.createElement("div"), _ = function(n, l, s) {
     return {
       geometry: {
@@ -218,13 +218,13 @@ const le = function(e) {
   };
   let S = null;
   const O = function(n, l, s) {
-    u && (u.removeAll(), t.visible() ? (G.classList.remove("esri-disabled"), n !== null && (H() ? (a.rotation = n * -1, n = 0, (s || s === 0) && a.goTo({
+    d && (d.removeAll(), t.visible() ? (G.classList.remove("esri-disabled"), n !== null && (H() ? (a.rotation = n * -1, n = 0, (s || s === 0) && a.goTo({
       center: [l, s]
     })) : a.rotation = 0, N = _(
       n || 0,
       l || N.geometry.longitude,
       s || N.geometry.latitude
-    ), u.add(N), (s || s === 0) && $([l, s]))) : G.classList.add("esri-disabled"));
+    ), d.add(N), (s || s === 0) && $([l, s]))) : G.classList.add("esri-disabled"));
   }, ee = function(n, l, s = {}) {
     const i = new RegExp(l, "i");
     let g = i.test(n.name) || i.test(n.alias);
@@ -342,9 +342,11 @@ const le = function(e) {
       "esri/layers/FeatureLayer"
     ]);
     if (a.when(async () => {
-      a.on("clickable", (d) => {
-        K = d;
-      }), a.on("key-down", (d) => {
+      a.on("clickable", (u) => {
+        K = u;
+      }), a.on("key-down", (u) => {
+        if (u.target.closest("input"))
+          return;
         const b = [
           "ArrowUp",
           "ArrowDown",
@@ -355,16 +357,16 @@ const le = function(e) {
           "w",
           "s"
           // w and s don't seem to be used for map actions but just in case that changes in the future.
-        ], h = d.key;
-        t.visible() && b.indexOf(h) !== -1 && d.stopPropagation();
-      }), a.on("immediate-click", (d) => {
+        ], h = u.key;
+        t.visible() && b.indexOf(h) !== -1 && u.stopPropagation();
+      }), a.on("immediate-click", (u) => {
         if (!K)
           return;
         const b = {
-          x: d.x,
-          y: d.y
+          x: u.x,
+          y: u.y
         };
-        if (console.log("immediate-click", d, b), r) {
+        if (console.log("immediate-click", u, b), r) {
           console.log("space wqas down");
           const h = a.toMap(b);
           if (R(h), S && a.graphics.removeAll(), S = pe(h), a.graphics.add(S), t.visible()) {
@@ -393,9 +395,9 @@ const le = function(e) {
       const m = document.createElement("div");
       m.className = "esri-widget--button", m.title = "Copy short URL to clipboad", m.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" height="24" width="24"><path d="M23 15H11.707l2.646 2.646-.707.707L9.793 14.5l3.854-3.854.707.707L11.707 14H23zm-13-5H6v1h4zm-4 5h2v-1H6zM3 4h3V3h3a2 2 0 0 1 4 0h3v1h3v9h-1V5h-2v2H6V5H4v16h14v-5h1v6H3zm4 2h8V4h-3V2.615A.615.615 0 0 0 11.386 2h-.771a.615.615 0 0 0-.615.615V4H7zM6 19h4v-1H6z"></path></svg>
     <span class="esri-icon-font-fallback-text">Copy short URL to clipboad</span>`, m.addEventListener("click", async () => {
-        const d = `${document.location.origin}/🔗`;
+        const u = `${document.location.origin}/🔗`;
         try {
-          const h = await (await fetch(d, {
+          const h = await (await fetch(u, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -412,8 +414,8 @@ const le = function(e) {
         a.goTo({
           center: [N.geometry.longitude, N.geometry.latitude]
         });
-      }), a.ui.add(G, "top-right"), f = t.facing((d) => {
-        O(d);
+      }), a.ui.add(G, "top-right"), f = t.facing((u) => {
+        O(u);
       });
       const p = new URLSearchParams(window.location.hash.substr(1)), V = p.get("center");
       V && (a.center = JSON.parse(V));
@@ -421,17 +423,17 @@ const le = function(e) {
       W && (a.zoom = JSON.parse(W));
       const B = p.get("marker");
       if (B) {
-        const d = JSON.parse(B);
-        if (d) {
-          const [b, h] = d;
+        const u = JSON.parse(B);
+        if (u) {
+          const [b, h] = u;
           O(t.facing(), b, h);
         }
       }
-      P.watch(a, "scale", re), re(a.scale), P.watch(a, "center", Ae), t.shot((d) => {
+      P.watch(a, "scale", re), re(a.scale), P.watch(a, "center", Ae), t.shot((u) => {
         const b = parseInt(
-          typeof d == "object" && d !== null ? d.id : d
+          typeof u == "object" && u !== null ? u.id : u
         );
-        b && b !== oe ? (console.log("Got shot", d, "layers", c.length), c.forEach((h, A) => {
+        b && b !== oe ? (console.log("Got shot", u, "layers", c.length), c.forEach((h, A) => {
           const v = h.layer;
           t.resetProgress(), console.log("Querying layer for shot", v, b), v.queryFeatures({
             objectIds: [b],
@@ -444,7 +446,7 @@ const le = function(e) {
               X(w, A);
             }
           });
-        })) : d || t.hide();
+        })) : u || t.hide();
       });
     }), C) {
       const m = `${C}/0`;
@@ -455,7 +457,7 @@ const le = function(e) {
         // start with agressive simplifaction - view should get scale change early on to override this
       });
       a.map.add(p), p.when((B) => {
-        const d = B.fields, b = d.find((w) => ee(w, "filenames")), h = d.find((w) => ee(w, "calibration"));
+        const u = B.fields, b = u.find((w) => ee(w, "filenames")), h = u.find((w) => ee(w, "calibration"));
         c.push({
           layer: p,
           shot: "id",
@@ -500,14 +502,14 @@ const le = function(e) {
           ]
         }
       });
-      a.map.add(W), u = new x({
+      a.map.add(W), d = new x({
         title: "GeoCam Field of View",
         geometryType: "point",
         spatialReference: {
           wkid: 4326
         }
-      }), a.map.layers.add(u), a.when(() => {
-        a.map.reorder(u, 1e3), a.map.reorder(p, 1e3), a.map.reorder(W, 1e3);
+      }), a.map.layers.add(d), a.when(() => {
+        a.map.reorder(d, 1e3), a.map.reorder(p, 1e3), a.map.reorder(W, 1e3);
       });
     }
   };
@@ -527,7 +529,7 @@ const le = function(e) {
     }
   };
   document.addEventListener("keydown", ae), document.addEventListener("keyup", se), this.destroy = function() {
-    document.removeEventListener("keydown", ae), document.removeEventListener("keyup", se), f(), z(), k(), be(), ve(), M(), a.map.removeLayer(u), t.wrapper.removeChild(j), t.wrapper.removeChild(Z);
+    document.removeEventListener("keydown", ae), document.removeEventListener("keyup", se), f(), z(), k(), be(), ve(), M(), a.map.removeLayer(d), t.wrapper.removeChild(j), t.wrapper.removeChild(Z);
   };
 };
 class We extends HTMLElement {
@@ -543,8 +545,8 @@ class We extends HTMLElement {
       if (this.viewer = r.viewer, this.mapView = o, this.viewer && this.viewer.plugin) {
         const c = r.getElementsByTagName(
           "geocam-viewer-prev-next-control"
-        )[0], u = c && c.plugin;
-        this.plugin = new Ve({ mapView: o, prevNextPlugin: u, src: t }), r.viewer.plugin(this.plugin);
+        )[0], d = c && c.plugin;
+        this.plugin = new Ve({ mapView: o, prevNextPlugin: d, src: t }), r.viewer.plugin(this.plugin);
         const f = r.getElementsByTagName(
           "geocam-viewer-screen-shot"
         )[0];
