@@ -432,7 +432,7 @@ export const arcgisMap = function (config = {}) {
       });
 
       mapView.on("key-down", (event) => {
-            if (event.target.closest('input,calcite-input')) return;
+        if (event.target && event.target.closest('input,calcite-input')) return;
         // stop map keyboard navigation when the viewer is visible so we can use it for the viewer
         // (trapping all even thought prev and next plugin may not be included)
         const prohibitedKeys = [
@@ -602,6 +602,15 @@ export const arcgisMap = function (config = {}) {
 
     if (src) {
       // add geocam layers
+      const cellUrl = `${src}/2`;
+ const cellLayer = new FeatureLayer({
+        url: cellUrl,
+        visible: false,
+         outFields: ["*"],
+    editingEnabled: true,
+       });
+        mapView.map.add(cellLayer);
+
       const shotsUrl = `${src}/0`;
       console.log("shots url is", shotsUrl);
       const shotsLayer = new FeatureLayer({
