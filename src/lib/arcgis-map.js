@@ -694,20 +694,7 @@ export const arcgisMap = function (config = {}) {
           capture: "capture",
         });
 
-        const buffer = {
-          xmin: -0.005,
-          ymin: -0.005,
-          xmax: 0.005,
-          ymax: 0.005,
-        };
-        const props = Object.keys(buffer);
-        const extent = {};
-        for (let i = 0; i < props.length; i++) {
-          extent[props[i]] =
-            parseFloat(layer.fullExtent[props[i]]) + buffer[props[i]];
-        }
-
-        mapView.extent = extent;
+        mapView.extent = layer.fullExtent;
       });
 
       const pointFeaturesUrl = `${src}/1`;
