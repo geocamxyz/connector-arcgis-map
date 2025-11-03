@@ -432,7 +432,12 @@ export const arcgisMap = function (config = {}) {
       });
 
       mapView.on("key-down", (event) => {
-        if (event && event.target && event.target.closest('input,calcite-input')) return;
+        if (
+          event &&
+          event.target &&
+          event.target.closest("input,calcite-input")
+        )
+          return;
         // stop map keyboard navigation when the viewer is visible so we can use it for the viewer
         // (trapping all even thought prev and next plugin may not be included)
         const prohibitedKeys = [
@@ -603,13 +608,13 @@ export const arcgisMap = function (config = {}) {
     if (src) {
       // add geocam layers
       const cellUrl = `${src}/2`;
- const cellLayer = new FeatureLayer({
+      const cellLayer = new FeatureLayer({
         url: cellUrl,
         visible: false,
-         outFields: ["*"],
-    editingEnabled: true,
-       });
-        mapView.map.add(cellLayer);
+        outFields: ["*"],
+        editingEnabled: true,
+      });
+      mapView.map.add(cellLayer);
 
       const shotsUrl = `${src}/0`;
       console.log("shots url is", shotsUrl);
@@ -638,20 +643,27 @@ export const arcgisMap = function (config = {}) {
           capture: "capture",
         });
 
-        const buffer = {
-          xmin: -0.005,
-          ymin: -0.005,
-          xmax: 0.005,
-          ymax: 0.005,
-        };
-        const props = Object.keys(buffer);
-        const extent = {};
-        for (let i = 0; i < props.length; i++) {
-          extent[props[i]] =
-            parseFloat(layer.fullExtent[props[i]]) + buffer[props[i]];
-        }
+        if (false) {
+          const yrange = Math.abs(
+            layer.fullExtent.ymax - layer.fullExtent.ymin
+          );
+          const prop = yrange * 0.2;
 
-        mapView.extent = extent;
+          const buffer = {
+            xmin: -prop,
+            ymin: -prop,
+            xmax: prop,
+            ymax: prop,
+          };
+          const props = Object.keys(buffer);
+          const extent = {};
+          for (let i = 0; i < props.length; i++) {
+            extent[props[i]] =
+              parseFloat(layer.fullExtent[props[i]]) + buffer[props[i]];
+          }
+
+          mapView.extent = extent;
+        }
       });
 
       const pointFeaturesUrl = `${src}/1`;
