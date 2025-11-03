@@ -638,6 +638,7 @@ export const arcgisMap = function (config = {}) {
           capture: "capture",
         });
 
+        mapView.extent = layer.fullExtent;
       });
 
       const pointFeaturesUrl = `${src}/1`;
