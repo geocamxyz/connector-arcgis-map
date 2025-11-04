@@ -8,29 +8,41 @@ export class GeocamViewerArcgisMap extends HTMLElement {
   }
 
   connectedCallback() {
-    this.link = function (mapView) {
+    const host = this.closest("geocam-viewer");
+    if (!host) {
+      console.error("GeocamViewerArcgisMap must be a child of GeocamViewer");
+      return;
+    }
+
+    const ensureViewer = (callback) => {
+      const viewer = host.viewer;
+      if (viewer && typeof viewer.plugin === "function") {
+        callback(viewer);
+      } else {
+        setTimeout(() => ensureViewer(callback), 50);
+      }
+    };
+
+    this.link = (mapView) => {
       console.log("linking to ", mapView);
       const src = this.getAttribute("src");
       if (!src) console.warn("No src attribute on geocam-viewer-arcgis-map");
-      const parent = this.parentNode;
-      this.viewer = parent.viewer;
-      this.mapView = mapView;
-      if (this.viewer && this.viewer.plugin) {
-        const prevnext = parent.getElementsByTagName(
-          "geocam-viewer-prev-next-control"
-        )[0];
+
+      ensureViewer((viewer) => {
+        if (this.plugin) {
+          return;
+        }
+        this.viewer = viewer;
+        this.mapView = mapView;
+        const prevnext = host.querySelector("geocam-viewer-prev-next-control");
         const prevNextPlugin = prevnext && prevnext.plugin;
         this.plugin = new arcgisMap({ mapView, prevNextPlugin, src });
-        parent.viewer.plugin(this.plugin);
-        const screenShot = parent.getElementsByTagName(
-          "geocam-viewer-screen-shot"
-        )[0];
+        this.viewer.plugin(this.plugin);
+        const screenShot = host.querySelector("geocam-viewer-screen-shot");
         if (screenShot && screenShot.plugin) {
           screenShot.plugin.arcgisView(mapView);
         }
-      } else {
-        console.error("GeocamViewerArcgisMap must be a child of GeocamViewer");
-      }
+      });
     };
     console.log("GeocamViewerArcgisMap connected");
   }
