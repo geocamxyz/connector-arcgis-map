@@ -122,7 +122,8 @@ export const arcgisMap = function (config = {}) {
     centerStore,
     unsubCenter,
     clickable = true,
-    fovMarkerStore;
+    fovMarkerStore,
+    postLayerLoadCallback;
 
   const { mapView, prevNextPlugin, widgets, expands, src } = config;
 
@@ -574,6 +575,7 @@ export const arcgisMap = function (config = {}) {
         );
         if (id && id !== lastShot) {
           console.log("Got shot", shot, "layers", geocamLayers.length);
+          const loadShot = function() {
           geocamLayers.forEach((gcl, i) => {
             const layer = gcl.layer;
             viewer.resetProgress();
@@ -594,6 +596,12 @@ export const arcgisMap = function (config = {}) {
                 }
               });
           });
+          }
+          if (geocamLayers.length > 0) {
+loadShot();
+          } else {
+postLayerLoadCallback = loadShot;
+          }
         } else {
           if (!shot) viewer.hide();
         }
@@ -640,6 +648,8 @@ export const arcgisMap = function (config = {}) {
 
         mapView.extent = layer.fullExtent;
       });
+
+      if (postLayerLoadCallback) postLayerLoadCallback();
 
       const pointFeaturesUrl = `${src}/1`;
       console.log("points features url is", pointFeaturesUrl);
