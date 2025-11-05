@@ -1,122 +1,122 @@
-var Le = typeof window < "u";
-const de = {
-  Promise: Le ? window.Promise : void 0
+var ke = typeof window < "u";
+const me = {
+  Promise: ke ? window.Promise : void 0
 };
-var me = "4.25", D = "next";
+var fe = "4.25", J = "next";
 function ge(e) {
-  if (e.toLowerCase() === D)
-    return D;
+  if (e.toLowerCase() === J)
+    return J;
   var o = e && e.match(/^(\d)\.(\d+)/);
   return o && {
     major: parseInt(o[1], 10),
     minor: parseInt(o[2], 10)
   };
 }
-function fe(e) {
-  return e === void 0 && (e = me), "https://js.arcgis.com/".concat(e, "/");
+function he(e) {
+  return e === void 0 && (e = fe), "https://js.arcgis.com/".concat(e, "/");
 }
-function ze(e) {
-  e === void 0 && (e = me);
-  var o = fe(e), t = ge(e);
-  if (t !== D && t.major === 3) {
+function Ne(e) {
+  e === void 0 && (e = fe);
+  var o = he(e), t = ge(e);
+  if (t !== J && t.major === 3) {
     var r = t.minor <= 10 ? "js/" : "";
     return "".concat(o).concat(r, "esri/css/esri.css");
   } else
     return "".concat(o, "esri/themes/light/main.css");
 }
-function ke(e) {
+function Te(e) {
   var o = document.createElement("link");
   return o.rel = "stylesheet", o.href = e, o;
 }
-function Ne(e, o) {
+function Ee(e, o) {
   if (o) {
     var t = document.querySelector(o);
     t.parentNode.insertBefore(e, t);
   } else
     document.head.appendChild(e);
 }
-function Te(e) {
+function Me(e) {
   return document.querySelector('link[href*="'.concat(e, '"]'));
 }
-function Ee(e) {
-  return !e || ge(e) ? ze(e) : e;
+function je(e) {
+  return !e || ge(e) ? Ne(e) : e;
 }
-function Me(e, o) {
-  var t = Ee(e), r = Te(t);
-  return r || (r = ke(t), Ne(r, o)), r;
+function He(e, o) {
+  var t = je(e), r = Me(t);
+  return r || (r = Te(t), Ee(r, o)), r;
 }
-var je = {};
-function He(e) {
+var Ge = {};
+function Pe(e) {
   var o = document.createElement("script");
   return o.type = "text/javascript", o.src = e, o.setAttribute("data-esri-loader", "loading"), o;
 }
-function ce(e, o, t) {
+function ie(e, o, t) {
   var r;
-  t && (r = Ge(e, t));
-  var i = function() {
-    o(e), e.removeEventListener("load", i, !1), r && e.removeEventListener("error", r, !1);
+  t && (r = Ze(e, t));
+  var s = function() {
+    o(e), e.removeEventListener("load", s, !1), r && e.removeEventListener("error", r, !1);
   };
-  e.addEventListener("load", i, !1);
+  e.addEventListener("load", s, !1);
 }
-function Ge(e, o) {
+function Ze(e, o) {
   var t = function(r) {
     o(r.error || new Error("There was an error attempting to load ".concat(e.src))), e.removeEventListener("error", t, !1);
   };
   return e.addEventListener("error", t, !1), t;
 }
-function he() {
+function be() {
   return document.querySelector("script[data-esri-loader]");
 }
-function J() {
+function I() {
   var e = window.require;
   return e && e.on;
 }
-function Pe(e) {
+function Ye(e) {
   e === void 0 && (e = {});
   var o = {};
-  [je, e].forEach(function(i) {
-    for (var d in i)
-      Object.prototype.hasOwnProperty.call(i, d) && (o[d] = i[d]);
+  [Ge, e].forEach(function(s) {
+    for (var d in s)
+      Object.prototype.hasOwnProperty.call(s, d) && (o[d] = s[d]);
   });
-  var t = o.version, r = o.url || fe(t);
-  return new de.Promise(function(i, d) {
-    var f = he();
-    if (f) {
-      var L = f.getAttribute("src");
-      L !== r ? d(new Error("The ArcGIS API for JavaScript is already loaded (".concat(L, ")."))) : J() ? i(f) : ce(f, i, d);
-    } else if (J())
+  var t = o.version, r = o.url || he(t);
+  return new me.Promise(function(s, d) {
+    var g = be();
+    if (g) {
+      var L = g.getAttribute("src");
+      L !== r ? d(new Error("The ArcGIS API for JavaScript is already loaded (".concat(L, ")."))) : I() ? s(g) : ie(g, s, d);
+    } else if (I())
       d(new Error("The ArcGIS API for JavaScript is already loaded."));
     else {
       var z = o.css;
       if (z) {
         var E = z === !0;
-        Me(E ? t : z, o.insertCssBefore);
+        He(E ? t : z, o.insertCssBefore);
       }
-      f = He(r), ce(f, function() {
-        f.setAttribute("data-esri-loader", "loaded"), i(f);
-      }, d), document.body.appendChild(f);
+      g = Pe(r), ie(g, function() {
+        g.setAttribute("data-esri-loader", "loaded"), s(g);
+      }, d), document.body.appendChild(g);
     }
   });
 }
-function ie(e) {
-  return new de.Promise(function(o, t) {
+function le(e) {
+  return new me.Promise(function(o, t) {
     var r = window.require.on("error", t);
     window.require(e, function() {
-      for (var i = [], d = 0; d < arguments.length; d++)
-        i[d] = arguments[d];
-      r.remove(), o(i);
+      for (var s = [], d = 0; d < arguments.length; d++)
+        s[d] = arguments[d];
+      r.remove(), o(s);
     });
   });
 }
-function Ze(e, o) {
-  if (o === void 0 && (o = {}), J())
-    return ie(e);
-  var t = he(), r = t && t.getAttribute("src");
-  return !o.url && r && (o.url = r), Pe(o).then(function() {
-    return ie(e);
+function Ue(e, o) {
+  if (o === void 0 && (o = {}), I())
+    return le(e);
+  var t = be(), r = t && t.getAttribute("src");
+  return !o.url && r && (o.url = r), Ye(o).then(function() {
+    return le(e);
   });
 }
-const Ye = (e, o) => e.replace(/\(\?\<(.+?)\>[^)]*\)/g, (t, r) => o[r]);
+const Ve = (e, o) => e.replace(/\(\?\<(.+?)\>[^)]*\)/g, (t, r) => o[r]);
 Number.prototype.toRad = function() {
   return this * (Math.PI / 180);
 };
@@ -126,21 +126,21 @@ Number.prototype.toDeg = function() {
 Number.prototype.to2DP = function() {
   return parseFloat(this.toFixed(2));
 };
-const le = function(e) {
+const ue = function(e) {
   return Array.isArray(e) ? e : [
     e.longitude || (e.coords ? e.coords.longitude : e.geometry ? e.geometry.longitude : null),
     e.latitude || (e.coords ? e.coords.latitude : e.geometry ? e.geometry.latitude : null)
   ];
-}, ue = function(e, o) {
-  const [t, r] = le(e), [i, d] = le(o), f = i.toRad(), L = d.toRad(), z = t.toRad(), E = r.toRad(), M = Math.sin(f - z) * Math.cos(L), j = Math.cos(E) * Math.sin(L) - Math.sin(E) * Math.cos(L) * Math.cos(f - z);
+}, de = function(e, o) {
+  const [t, r] = ue(e), [s, d] = ue(o), g = s.toRad(), L = d.toRad(), z = t.toRad(), E = r.toRad(), M = Math.sin(g - z) * Math.cos(L), j = Math.cos(E) * Math.sin(L) - Math.sin(E) * Math.cos(L) * Math.cos(g - z);
   return (Math.atan2(M, j).toDeg() + 360) % 360;
 }, N = (e, o = {}, t = "") => {
   const r = document.createElement(e);
-  for (let i in o)
-    r.setAttribute(i, o[i]);
+  for (let s in o)
+    r.setAttribute(s, o[s]);
   return r.innerHTML = t, r;
-}, Ue = (e, o) => (document.getElementById(e) || document.getElementsByTagName("head")[0].prepend(N("STYLE", { type: "text/css" }, o)), !0), Ve = "data:image/png;base64,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", Oe = function(e = {}) {
-  Ue("geocam-argis-map", `
+}, Oe = (e, o) => (document.getElementById(e) || document.getElementsByTagName("head")[0].prepend(N("STYLE", { type: "text/css" }, o)), !0), We = "data:image/png;base64,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", Be = function(e = {}) {
+  Oe("geocam-argis-map", `
       .geocam-auto-rotate-checkbox, .geocam-auto-brightness-checkbox {
         display: none;
       }
@@ -168,26 +168,26 @@ const le = function(e) {
       }
 
     `);
-  let t, r, i = [], d, f, L, z, E, M, j, Z, Y, I, U, F, B, be, Q, ve, K = !0, $;
-  const { mapView: a, prevNextPlugin: C, widgets: Be, expands: Re, src: R } = e, H = document.createElement("div"), _ = function(n, u, s) {
+  let t, r, s = [], d, g, L, z, E, M, j, Z, Y, F, U, Q, R, ve, K, pe, $ = !0, _, C;
+  const { mapView: a, prevNextPlugin: S, widgets: qe, expands: Ce, src: q } = e, H = document.createElement("div"), ee = function(n, u, c) {
     return {
       geometry: {
         type: "point",
-        latitude: s,
+        latitude: c,
         longitude: u
       },
       symbol: {
         type: "picture-marker",
         // autocasts as new PictureMarkerSymbol()
-        url: Ve,
+        url: We,
         width: "56",
         height: "101",
         angle: n
       }
     };
   };
-  let k = _(0, 0, 0);
-  const pe = function(n) {
+  let k = ee(0, 0, 0);
+  const we = function(n) {
     return {
       attributes: {
         id: "lock"
@@ -216,89 +216,89 @@ const le = function(e) {
       }
     };
   };
-  let S = null;
-  const V = function(n, u, s) {
-    d && (d.removeAll(), t.visible() ? (H.classList.remove("esri-disabled"), n !== null && (j() ? (a.rotation = n * -1, n = 0, (s || s === 0) && a.goTo({
-      center: [u, s]
-    })) : a.rotation = 0, k = _(
+  let X = null;
+  const V = function(n, u, c) {
+    d && (d.removeAll(), t.visible() ? (H.classList.remove("esri-disabled"), n !== null && (j() ? (a.rotation = n * -1, n = 0, (c || c === 0) && a.goTo({
+      center: [u, c]
+    })) : a.rotation = 0, k = ee(
       n || 0,
       u || k.geometry.longitude,
-      s || k.geometry.latitude
-    ), d.add(k), (s || s === 0) && $([u, s]))) : H.classList.add("esri-disabled"));
-  }, ee = function(n, u, s = {}) {
+      c || k.geometry.latitude
+    ), d.add(k), (c || c === 0) && _([u, c]))) : H.classList.add("esri-disabled"));
+  }, te = function(n, u, c = {}) {
     const l = new RegExp(u, "i");
     let h = l.test(n.name) || l.test(n.alias);
-    return h && s.description && (h = !!n.description), h;
-  }, te = function(n) {
+    return h && c.description && (h = !!n.description), h;
+  }, oe = function(n) {
     if (n) {
       var u = document.createElement("textarea");
       return u.innerHTML = n, u.value;
     } else
       return "";
-  }, we = (n, u) => {
-    const s = n.base;
+  }, xe = (n, u) => {
+    const c = n.base;
     if (n.filenames)
-      return JSON.parse(u[n.filenames]).map((l) => Array.isArray(l) ? l.map((h) => /^https?:\/\//i.test(h) ? l : `${s}${h}`) : /^https?:\/\//i.test(l) ? l : `${s}${l}`);
+      return JSON.parse(u[n.filenames]).map((l) => Array.isArray(l) ? l.map((h) => /^https?:\/\//i.test(h) ? l : `${c}${h}`) : /^https?:\/\//i.test(l) ? l : `${c}${l}`);
     {
       const l = u[n.capture].split(".")[0], h = l.split("/").pop(), T = JSON.parse(u[n.lengths]), w = JSON.parse(u[n.offsets]);
-      return T.map((p, m) => {
+      return T.map((v, m) => {
         const x = encodeURIComponent(
           `https://s3.us-west-004.backblazeb2.com/gc-raw-surveys-archive/${l}_${m}.tar`
         );
-        return `${s}${h}/${m}/${u[n.shot]}.jpg?offset=${w[m]}&length=${p}&container=${x}`;
+        return `${c}${h}/${m}/${u[n.shot]}.jpg?offset=${w[m]}&length=${v}&container=${x}`;
       });
     }
-  }, xe = function(n) {
-    return i.findIndex((u) => u.layer == n.layer);
   }, ye = function(n) {
+    return s.findIndex((u) => u.layer == n.layer);
+  }, Ae = function(n) {
     if (t.label) {
-      const { capture: u, utc_time: s, shot: l } = n, h = new Date(s);
+      const { capture: u, utc_time: c, shot: l } = n, h = new Date(c);
       t.label(`${h.toLocaleString()}`);
     }
   };
-  let oe;
-  const X = function(n, u) {
-    const s = B();
-    console.log("shotclick with viewlock", s);
-    const l = i[u], h = n.attributes[l.shot];
-    oe = h, t.shot(h), C && (C.prev(n.attributes.prev), C.next(n.attributes.next));
+  let ne;
+  const D = function(n, u) {
+    const c = R();
+    console.log("shotclick with viewlock", c);
+    const l = s[u], h = n.attributes[l.shot];
+    ne = h, t.shot(h), S && (S.prev(n.attributes.prev), S.next(n.attributes.next));
     const T = [0, 1, 2].map(
-      (x) => Ye(l.calibrationBase, {
+      (x) => Ve(l.calibrationBase, {
         camera: x,
         rig_id: n.attributes[l.rigId],
         calibration: n.attributes[l.calibration]
       })
-    ), w = n.attributes[l.yaw], G = n.attributes[l.rotation], p = Y() && l.brightness ? n.attributes[l.brightness] : null;
-    I = p;
-    const m = we(l, n.attributes);
-    if (s) {
-      const x = ue(n.geometry, s);
+    ), w = n.attributes[l.yaw], G = n.attributes[l.rotation], v = Y() && l.brightness ? n.attributes[l.brightness] : null;
+    F = v;
+    const m = xe(l, n.attributes);
+    if (c) {
+      const x = de(n.geometry, c);
       t.facing(x);
     }
-    t.show(m, w, T, G, p), V(
+    t.show(m, w, T, G, v), V(
       t.facing(),
       n.geometry.longitude,
       n.geometry.latitude
-    ), ye(n.attributes);
+    ), Ae(n.attributes);
   };
-  let ne;
-  const re = function(n, u, s, l) {
-    clearTimeout(ne), ne = setTimeout(() => {
-      const T = Math.ceil(n / 500), w = a.extent, G = `${w.xmin},${w.ymin},${w.xmax},${w.ymax},${w.spatialReference.wkid}`, p = `mod(id,${T}) = 0 AND extent = ${G}`;
-      i.forEach((m) => {
-        m.layer.definitionExpression !== p && (m.layer.definitionExpression = p, console.log(
+  let re;
+  const ae = function(n, u, c, l) {
+    clearTimeout(re), re = setTimeout(() => {
+      const T = Math.ceil(n / 500), w = a.extent, G = `${w.xmin},${w.ymin},${w.xmax},${w.ymax},${w.spatialReference.wkid}`, v = `mod(id,${T}) = 0 AND extent = ${G}`;
+      s.forEach((m) => {
+        m.layer.definitionExpression !== v && (m.layer.definitionExpression = v, console.log(
           "definition expression changed for",
           m.layer,
-          p
+          v
         ));
-      }), F(a.zoom), V(t.facing());
+      }), Q(a.zoom), V(t.facing());
     }, 500);
-  }, Ae = function(n, u, s, l) {
-    Q([a.center.longitude, a.center.latitude]);
+  }, Le = function(n, u, c, l) {
+    K([a.center.longitude, a.center.latitude]);
   };
   this.init = async function(n) {
-    t = n, $ = t.store("marker"), F = t.store("zoom"), Q = t.store("center"), B = t.store("viewlock"), j = t.store("autorotate"), M = N("DIV", { class: "geocam-auto-rotate" });
-    const u = N("LABEL", { class: "geocam-auto-rotate-label" }), s = N("INPUT", {
+    t = n, _ = t.store("marker"), Q = t.store("zoom"), K = t.store("center"), R = t.store("viewlock"), j = t.store("autorotate"), M = N("DIV", { class: "geocam-auto-rotate" });
+    const u = N("LABEL", { class: "geocam-auto-rotate-label" }), c = N("INPUT", {
       type: "checkbox",
       class: "geocam-auto-rotate-checkbox"
     }), l = N(
@@ -306,9 +306,9 @@ const le = function(e) {
       { class: "geocam-auto-rotate-span geocam-viewer-control-button" },
       " Autorotate"
     );
-    s.checked = j(), s.addEventListener("change", () => {
-      j(s.checked);
-    }), u.appendChild(s), u.appendChild(l), M.appendChild(u), t.addControl(M, "left-top"), L = j((m) => {
+    c.checked = j(), c.addEventListener("change", () => {
+      j(c.checked);
+    }), u.appendChild(c), u.appendChild(l), M.appendChild(u), t.addControl(M, "left-top"), L = j((m) => {
       M.setAttribute(
         "title",
         m ? "turn auto-rotate off" : "turn auto-rotate on"
@@ -334,18 +334,18 @@ const le = function(e) {
       Z.setAttribute(
         "title",
         m ? "turn auto-brightness off" : "turn auto-brightness on"
-      ), t.reload(Y() ? I : "[1,1,1]");
+      ), t.reload(Y() ? F : "[1,1,1]");
     }), E = t.visible((m) => V(t.facing()));
-    const [w, G, p] = await Ze([
+    const [w, G, v] = await Ue([
       "esri/layers/GraphicsLayer",
       "esri/core/watchUtils",
       "esri/layers/FeatureLayer"
     ]);
     if (a.when(async () => {
-      a.on("clickable", (c) => {
-        K = c;
-      }), a.on("key-down", (c) => {
-        if (c && c.target && c.target.closest("input,calcite-input"))
+      a.on("clickable", (i) => {
+        $ = i;
+      }), a.on("key-down", (i) => {
+        if (i && i.target && i.target.closest("input,calcite-input"))
           return;
         const b = [
           "ArrowUp",
@@ -357,36 +357,36 @@ const le = function(e) {
           "w",
           "s"
           // w and s don't seem to be used for map actions but just in case that changes in the future.
-        ], g = c && c.key;
-        t.visible() && b.indexOf(g) !== -1 && c.stopPropagation();
-      }), a.on("immediate-click", (c) => {
-        if (!K)
+        ], f = i && i.key;
+        t.visible() && b.indexOf(f) !== -1 && i.stopPropagation();
+      }), a.on("immediate-click", (i) => {
+        if (!$)
           return;
         const b = {
-          x: c.x,
-          y: c.y
+          x: i.x,
+          y: i.y
         };
-        if (console.log("immediate-click", c, b), r) {
+        if (console.log("immediate-click", i, b), r) {
           console.log("space wqas down");
-          const g = a.toMap(b);
-          if (B(g), S && a.graphics.removeAll(), S = pe(g), a.graphics.add(S), t.visible()) {
-            const A = ue(k.geometry, g);
-            t.facing(A);
+          const f = a.toMap(b);
+          if (R(f), X && a.graphics.removeAll(), X = we(f), a.graphics.add(X), t.visible()) {
+            const y = de(k.geometry, f);
+            t.facing(y);
           }
         } else
-          a.hitTest(b).then((g) => {
-            if (g.results && g.results.length > 0)
-              for (var A = 0; A < g.results.length; A++) {
-                const v = g.results[A].graphic, y = xe(v);
-                if (y >= 0) {
-                  Object.entries(v.attributes).length < 2 ? v.layer.queryFeatures({
-                    objectIds: [v.attributes.id],
+          a.hitTest(b).then((f) => {
+            if (f.results && f.results.length > 0)
+              for (var y = 0; y < f.results.length; y++) {
+                const A = f.results[y].graphic, p = ye(A);
+                if (p >= 0) {
+                  Object.entries(A.attributes).length < 2 ? A.layer.queryFeatures({
+                    objectIds: [A.attributes.id],
                     returnGeometry: !0,
                     outFields: "*",
-                    where: v.layer.definitionExpression
-                  }).then((q) => {
-                    q.features.length > 0 && X(q.features[0], y);
-                  }) : X(v, y);
+                    where: A.layer.definitionExpression
+                  }).then((W) => {
+                    W.features.length > 0 && D(W.features[0], p);
+                  }) : D(A, p);
                   break;
                 }
               }
@@ -395,16 +395,16 @@ const le = function(e) {
       const m = document.createElement("div");
       m.className = "esri-widget--button", m.title = "Copy short URL to clipboad", m.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" height="24" width="24"><path d="M23 15H11.707l2.646 2.646-.707.707L9.793 14.5l3.854-3.854.707.707L11.707 14H23zm-13-5H6v1h4zm-4 5h2v-1H6zM3 4h3V3h3a2 2 0 0 1 4 0h3v1h3v9h-1V5h-2v2H6V5H4v16h14v-5h1v6H3zm4 2h8V4h-3V2.615A.615.615 0 0 0 11.386 2h-.771a.615.615 0 0 0-.615.615V4H7zM6 19h4v-1H6z"></path></svg>
     <span class="esri-icon-font-fallback-text">Copy short URL to clipboad</span>`, m.addEventListener("click", async () => {
-        const c = `${document.location.origin}/🔗`;
+        const i = `${document.location.origin}/🔗`;
         try {
-          const g = await (await fetch(c, {
+          const f = await (await fetch(i, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               link: { url: document.location.toString() }
             })
           })).json();
-          await navigator.clipboard.writeText(g.link), alert(`Url copied to clipboard: ${g.link}`);
+          await navigator.clipboard.writeText(f.link), alert(`Url copied to clipboard: ${f.link}`);
         } catch (b) {
           alert(
             `Sorry, the short URL could not be copied to the clipboard: ${b}`
@@ -414,58 +414,65 @@ const le = function(e) {
         a.goTo({
           center: [k.geometry.longitude, k.geometry.latitude]
         });
-      }), a.ui.add(H, "top-right"), f = t.facing((c) => {
-        V(c);
+      }), a.ui.add(H, "top-right"), g = t.facing((i) => {
+        V(i);
       });
       const x = new URLSearchParams(window.location.hash.substr(1)), O = x.get("center");
       O && (a.center = JSON.parse(O));
       const P = x.get("zoom");
       P && (a.zoom = JSON.parse(P));
-      const W = x.get("marker");
-      if (W) {
-        const c = JSON.parse(W);
-        if (c) {
-          const [b, g] = c;
-          V(t.facing(), b, g);
+      const B = x.get("marker");
+      if (B) {
+        const i = JSON.parse(B);
+        if (i) {
+          const [b, f] = i;
+          V(t.facing(), b, f);
         }
       }
-      G.watch(a, "scale", re), re(a.scale), G.watch(a, "center", Ae), t.shot((c) => {
+      G.watch(a, "scale", ae), ae(a.scale), G.watch(a, "center", Le), t.shot((i) => {
         const b = parseInt(
-          typeof c == "object" && c !== null ? c.id : c
+          typeof i == "object" && i !== null ? i.id : i
         );
-        b && b !== oe ? (console.log("Got shot", c, "layers", i.length), i.forEach((g, A) => {
-          const v = g.layer;
-          t.resetProgress(), console.log("Querying layer for shot", v, b), v.queryFeatures({
-            objectIds: [b],
-            returnGeometry: !0,
-            outFields: "*",
-            where: v.definitionExpression
-          }).then((y) => {
-            if (console.log("Got results for layer", v, y), y.features.length > 0) {
-              const q = y.features[0];
-              X(q, A);
-            }
-          });
-        })) : c || t.hide();
+        if (b && b !== ne) {
+          console.log("Got shot", i, "layers", s.length);
+          const f = function() {
+            s.forEach((y, A) => {
+              const p = y.layer;
+              t.resetProgress(), console.log("Querying layer for shot", p, b), p.queryFeatures({
+                objectIds: [b],
+                returnGeometry: !0,
+                outFields: "*",
+                where: p.definitionExpression
+              }).then((W) => {
+                if (console.log("Got results for layer", p, W), W.features.length > 0) {
+                  const ze = W.features[0];
+                  D(ze, A);
+                }
+              });
+            });
+          };
+          s.length > 0 ? f() : C = f;
+        } else
+          i || t.hide();
       });
-    }), R) {
-      const m = `${R}/2`, x = new p({
+    }), q) {
+      const m = `${q}/2`, x = new v({
         url: m,
         visible: !1,
         outFields: ["*"],
         editingEnabled: !0
       });
       a.map.add(x);
-      const O = `${R}/0`;
+      const O = `${q}/0`;
       console.log("shots url is", O);
-      const P = new p({
+      const P = new v({
         url: O,
         definitionExpression: "mod(id,100) = 0"
         // start with agressive simplifaction - view should get scale change early on to override this
       });
       a.map.add(P), P.when((b) => {
-        const g = b.fields, A = g.find((y) => ee(y, "filenames")), v = g.find((y) => ee(y, "calibration"));
-        i.push({
+        const f = b.fields, y = f.find((p) => te(p, "filenames")), A = f.find((p) => te(p, "calibration"));
+        s.push({
           layer: P,
           shot: "id",
           filenames: "filenames",
@@ -473,17 +480,17 @@ const le = function(e) {
           rotation: "rotation_matrix",
           datetime: "utc_time",
           brightness: null,
-          base: te(A && A.description),
+          base: oe(y && y.description),
           calibration: "calibration",
           rigId: null,
-          calibrationBase: te(v.description),
+          calibrationBase: oe(A.description),
           capture: "capture"
         }), a.extent = b.fullExtent;
-      });
-      const W = `${R}/1`;
-      console.log("points features url is", W);
-      const c = new p({
-        url: W,
+      }), C && C();
+      const B = `${q}/1`;
+      console.log("points features url is", B);
+      const i = new v({
+        url: B,
         popupEnabled: !0,
         popupTemplate: {
           title: "{reference}",
@@ -500,37 +507,37 @@ const le = function(e) {
           ]
         }
       });
-      a.map.add(c), d = new w({
+      a.map.add(i), d = new w({
         title: "GeoCam Field of View",
         geometryType: "point",
         spatialReference: {
           wkid: 4326
         }
       }), a.map.layers.add(d), a.when(() => {
-        a.map.reorder(d, 1e3), a.map.reorder(P, 1e3), a.map.reorder(c, 1e3);
+        a.map.reorder(d, 1e3), a.map.reorder(P, 1e3), a.map.reorder(i, 1e3);
       });
     }
   };
-  var ae = function(n) {
+  var se = function(n) {
     switch (n.key, n.key) {
       case "Escape": {
-        B(null), a.graphics.removeAll();
+        R(null), a.graphics.removeAll();
         break;
       }
       case " ":
         r = !0;
     }
-  }, se = function(n) {
+  }, ce = function(n) {
     switch (n.key, n.key) {
       case " ":
         r = !1;
     }
   };
-  document.addEventListener("keydown", ae), document.addEventListener("keyup", se), this.destroy = function() {
-    document.removeEventListener("keydown", ae), document.removeEventListener("keyup", se), f(), L(), z(), be(), ve(), E(), a.map.removeLayer(d), t.wrapper.removeChild(M), t.wrapper.removeChild(Z);
+  document.addEventListener("keydown", se), document.addEventListener("keyup", ce), this.destroy = function() {
+    document.removeEventListener("keydown", se), document.removeEventListener("keyup", ce), g(), L(), z(), ve(), pe(), E(), a.map.removeLayer(d), t.wrapper.removeChild(M), t.wrapper.removeChild(Z);
   };
 };
-class We extends HTMLElement {
+class Re extends HTMLElement {
   constructor() {
     super(), this.plugin = null, console.log("GeocamViewerArcgisMap init");
   }
@@ -541,14 +548,14 @@ class We extends HTMLElement {
       t || console.warn("No src attribute on geocam-viewer-arcgis-map");
       const r = this.parentNode;
       if (this.viewer = r.viewer, this.mapView = o, this.viewer && this.viewer.plugin) {
-        const i = r.getElementsByTagName(
+        const s = r.getElementsByTagName(
           "geocam-viewer-prev-next-control"
-        )[0], d = i && i.plugin;
-        this.plugin = new Oe({ mapView: o, prevNextPlugin: d, src: t }), r.viewer.plugin(this.plugin);
-        const f = r.getElementsByTagName(
+        )[0], d = s && s.plugin;
+        this.plugin = new Be({ mapView: o, prevNextPlugin: d, src: t }), r.viewer.plugin(this.plugin);
+        const g = r.getElementsByTagName(
           "geocam-viewer-screen-shot"
         )[0];
-        f && f.plugin && f.plugin.arcgisView(o);
+        g && g.plugin && g.plugin.arcgisView(o);
       } else
         console.error("GeocamViewerArcgisMap must be a child of GeocamViewer");
     }, console.log("GeocamViewerArcgisMap connected");
@@ -557,7 +564,7 @@ class We extends HTMLElement {
     this.plugin = null, this.viewer = null, this.mapView = null, console.log("GeocamViewerArcgisMap disconnected");
   }
 }
-window.customElements.define("geocam-viewer-arcgis-map", We);
+window.customElements.define("geocam-viewer-arcgis-map", Re);
 export {
-  We as GeocamViewerArcgisMap
+  Re as GeocamViewerArcgisMap
 };
