@@ -433,7 +433,12 @@ export const arcgisMap = function (config = {}) {
       });
 
       mapView.on("key-down", (event) => {
-        if (event && event.target && event.target.closest('input,calcite-input')) return;
+        if (
+          event &&
+          event.target &&
+          event.target.closest("input,calcite-input")
+        )
+          return;
         // stop map keyboard navigation when the viewer is visible so we can use it for the viewer
         // (trapping all even thought prev and next plugin may not be included)
         const prohibitedKeys = [
@@ -536,6 +541,7 @@ export const arcgisMap = function (config = {}) {
       recenterBtn.title = "Recenter map on selected shot";
       recenterBtn.innerHTML = `<span aria-hidden="true" class="esri-icon-zoom-to-object"></span><span class="esri-icon-font-fallback-text">Expand</span>`;
       recenterBtn.addEventListener("click", () => {
+        console.log("recenter going to", fovG.geometry);
         mapView.goTo({
           center: [fovG.geometry.longitude, fovG.geometry.latitude],
         });
@@ -575,32 +581,33 @@ export const arcgisMap = function (config = {}) {
         );
         if (id && id !== lastShot) {
           console.log("Got shot", shot, "layers", geocamLayers.length);
-          const loadShot = function() {
-          geocamLayers.forEach((gcl, i) => {
-            const layer = gcl.layer;
-            viewer.resetProgress();
-            console.log("Querying layer for shot", layer, id);
-            layer
-              .queryFeatures({
-                objectIds: [id],
-                returnGeometry: true,
-                outFields: "*",
-                where: layer.definitionExpression,
-              })
-              .then((results) => {
-                // eslint-disable-line no-loop-func
-                console.log("Got results for layer", layer, results);
-                if (results.features.length > 0) {
-                  const graphic = results.features[0];
-                  shotClick(graphic, i);
-                }
-              });
-          });
-          }
+          const loadShot = function () {
+            console.log("Loading shot", id);
+            geocamLayers.forEach((gcl, i) => {
+              const layer = gcl.layer;
+              viewer.resetProgress();
+              console.log("Querying layer for shot", layer, id);
+              layer
+                .queryFeatures({
+                  objectIds: [id],
+                  returnGeometry: true,
+                  outFields: "*",
+                  where: layer.definitionExpression,
+                })
+                .then((results) => {
+                  // eslint-disable-line no-loop-func
+                  console.log("Got results for layer", layer, results);
+                  if (results.features.length > 0) {
+                    const graphic = results.features[0];
+                    shotClick(graphic, i);
+                  }
+                });
+            });
+          };
           if (geocamLayers.length > 0) {
-loadShot();
+            loadShot();
           } else {
-postLayerLoadCallback = loadShot;
+            postLayerLoadCallback = loadShot;
           }
         } else {
           if (!shot) viewer.hide();
@@ -611,19 +618,20 @@ postLayerLoadCallback = loadShot;
     if (src) {
       // add geocam layers
       const cellUrl = `${src}/2`;
- const cellLayer = new FeatureLayer({
+      const cellLayer = new FeatureLayer({
         url: cellUrl,
         visible: false,
-         outFields: ["*"],
-    editingEnabled: true,
-       });
-        mapView.map.add(cellLayer);
+        outFields: ["*"],
+        editingEnabled: true,
+      });
+      mapView.map.add(cellLayer);
 
       const shotsUrl = `${src}/0`;
       console.log("shots url is", shotsUrl);
       const shotsLayer = new FeatureLayer({
         url: shotsUrl,
         definitionExpression: "mod(id,100) = 0", // start with agressive simplifaction - view should get scale change early on to override this
+        //    outFields: ["*"]
       });
       mapView.map.add(shotsLayer);
       shotsLayer.when((layer) => {
@@ -647,9 +655,10 @@ postLayerLoadCallback = loadShot;
         });
 
         mapView.extent = layer.fullExtent;
-      });
 
+        console.log('in when',geocamLayers.length);
       if (postLayerLoadCallback) postLayerLoadCallback();
+      });
 
       const pointFeaturesUrl = `${src}/1`;
       console.log("points features url is", pointFeaturesUrl);
