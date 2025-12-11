@@ -417,7 +417,7 @@ const de = function(e) {
       ];
       H.className = "esri-widget--button", H.title = "Recenter map on selected shot", H.innerHTML = '<span aria-hidden="true" class="esri-icon-zoom-to-object"></span><span class="esri-icon-font-fallback-text">Expand</span>', H.addEventListener("click", () => {
         const s = w.geometry.longitude == 0 && w.geometry.latitude == 0 ? L : [w.geometry.longitude, w.geometry.latitude];
-        a.goTo({
+        console.log("recenter to", s), a.goTo({
           center: s
         });
       }), a.ui.add(H, "top-right"), f = t.facing((s) => {
