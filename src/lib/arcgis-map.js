@@ -536,17 +536,15 @@ export const arcgisMap = function (config = {}) {
         }
       });
       mapView.ui.add(copyBtn, "top-right");
-      const mapCenter = [
-        mapView.extent.center.longitude,
-        mapView.extent.center.latitude,
-      ];
+     let mapCenter = null;
       recenterBtn.className = "esri-widget--button";
       recenterBtn.title = "Recenter map on selected shot";
       recenterBtn.innerHTML = `<span aria-hidden="true" class="esri-icon-zoom-to-object"></span><span class="esri-icon-font-fallback-text">Expand</span>`;
       recenterBtn.addEventListener("click", () => {
         // silly check can't rely on 0 because at least once I got -1.3994440598439473e-13 - go figure
+       if (!mapCenter) mapCenter = [mapView.center.longitude, mapView.center.latitude];
         const rc =
-          Math.abs(fovG.geometry.longitude) < 0.0001 && Math.abs(fovG.geometry.latitude) < 0.0001
+         ( Math.abs(fovG.geometry.longitude) == 0) && (Math.abs(fovG.geometry.latitude) == 0)
             ? mapCenter
             : [fovG.geometry.longitude, fovG.geometry.latitude];
             console.log("recenter to",rc);
