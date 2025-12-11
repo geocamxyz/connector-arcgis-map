@@ -544,8 +544,9 @@ export const arcgisMap = function (config = {}) {
       recenterBtn.title = "Recenter map on selected shot";
       recenterBtn.innerHTML = `<span aria-hidden="true" class="esri-icon-zoom-to-object"></span><span class="esri-icon-font-fallback-text">Expand</span>`;
       recenterBtn.addEventListener("click", () => {
+        // silly check can't rely on 0 because at least once I got -1.3994440598439473e-13 - go figure
         const rc =
-          fovG.geometry.longitude == 0 && fovG.geometry.latitude == 0
+          Math.abs(fovG.geometry.longitude) < 0.0001 && Math.abs(fovG.geometry.latitude) < 0.0001
             ? mapCenter
             : [fovG.geometry.longitude, fovG.geometry.latitude];
             console.log("recenter to",rc);
