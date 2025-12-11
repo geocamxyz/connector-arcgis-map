@@ -82,15 +82,15 @@ function Ue(e) {
   return new ge.Promise(function(c, d) {
     var h = ve();
     if (h) {
-      var y = h.getAttribute("src");
-      y !== r ? d(new Error("The ArcGIS API for JavaScript is already loaded (".concat(y, ")."))) : F() ? c(h) : le(h, c, d);
+      var A = h.getAttribute("src");
+      A !== r ? d(new Error("The ArcGIS API for JavaScript is already loaded (".concat(A, ")."))) : F() ? c(h) : le(h, c, d);
     } else if (F())
       d(new Error("The ArcGIS API for JavaScript is already loaded."));
     else {
-      var A = o.css;
-      if (A) {
-        var E = A === !0;
-        Ge(E ? t : A, o.insertCssBefore);
+      var L = o.css;
+      if (L) {
+        var E = L === !0;
+        Ge(E ? t : L, o.insertCssBefore);
       }
       h = Ze(r), le(h, function() {
         h.setAttribute("data-esri-loader", "loaded"), c(h);
@@ -132,7 +132,7 @@ const de = function(e) {
     e.latitude || (e.coords ? e.coords.latitude : e.geometry ? e.geometry.latitude : null)
   ];
 }, me = function(e, o) {
-  const [t, r] = de(e), [c, d] = de(o), h = c.toRad(), y = d.toRad(), A = t.toRad(), E = r.toRad(), M = Math.sin(h - A) * Math.cos(y), j = Math.cos(E) * Math.sin(y) - Math.sin(E) * Math.cos(y) * Math.cos(h - A);
+  const [t, r] = de(e), [c, d] = de(o), h = c.toRad(), A = d.toRad(), L = t.toRad(), E = r.toRad(), M = Math.sin(h - L) * Math.cos(A), j = Math.cos(E) * Math.sin(A) - Math.sin(E) * Math.cos(A) * Math.cos(h - L);
   return (Math.atan2(M, j).toDeg() + 360) % 360;
 }, k = (e, o = {}, t = "") => {
   const r = document.createElement(e);
@@ -168,7 +168,7 @@ const de = function(e) {
       }
 
     `);
-  let t, r, c = [], d, h, y, A, E, M, j, Y, U, Q, V, K, q, pe, $, we, _ = !0, ee, S;
+  let t, r, c = [], d, h, A, L, E, M, j, Y, U, Q, V, K, q, pe, $, we, _ = !0, ee, S;
   const { mapView: a, prevNextPlugin: X, widgets: Ce, expands: Se, src: C } = e, H = document.createElement("div"), te = function(n, u, i) {
     return {
       geometry: {
@@ -242,10 +242,10 @@ const de = function(e) {
     {
       const l = u[n.capture].split(".")[0], f = l.split("/").pop(), N = JSON.parse(u[n.lengths]), x = JSON.parse(u[n.offsets]);
       return N.map((v, m) => {
-        const L = encodeURIComponent(
+        const y = encodeURIComponent(
           `https://s3.us-west-004.backblazeb2.com/gc-raw-surveys-archive/${l}_${m}.tar`
         );
-        return `${i}${f}/${m}/${u[n.shot]}.jpg?offset=${x[m]}&length=${v}&container=${L}`;
+        return `${i}${f}/${m}/${u[n.shot]}.jpg?offset=${x[m]}&length=${v}&container=${y}`;
       });
     }
   }, Ae = function(n) {
@@ -263,8 +263,8 @@ const de = function(e) {
     const l = c[u], f = n.attributes[l.shot];
     re = f, t.shot(f), X && (X.prev(n.attributes.prev), X.next(n.attributes.next));
     const N = [0, 1, 2].map(
-      (L) => Oe(l.calibrationBase, {
-        camera: L,
+      (y) => Oe(l.calibrationBase, {
+        camera: y,
         rig_id: n.attributes[l.rigId],
         calibration: n.attributes[l.calibration]
       })
@@ -272,8 +272,8 @@ const de = function(e) {
     Q = v;
     const m = ye(l, n.attributes);
     if (i) {
-      const L = me(n.geometry, i);
-      t.facing(L);
+      const y = me(n.geometry, i);
+      t.facing(y);
     }
     t.show(m, x, N, G, v), O(
       t.facing(),
@@ -308,7 +308,7 @@ const de = function(e) {
     );
     i.checked = j(), i.addEventListener("change", () => {
       j(i.checked);
-    }), u.appendChild(i), u.appendChild(l), M.appendChild(u), t.addControl(M, "left-top"), y = j((m) => {
+    }), u.appendChild(i), u.appendChild(l), M.appendChild(u), t.addControl(M, "left-top"), A = j((m) => {
       M.setAttribute(
         "title",
         m ? "turn auto-rotate off" : "turn auto-rotate on"
@@ -330,7 +330,7 @@ const de = function(e) {
     );
     V.disabled = !0, V.checked = U(), V.addEventListener("change", () => {
       U(V.checked);
-    }), f.appendChild(V), f.appendChild(N), Y.appendChild(f), t.addControl(Y, "left-top"), A = U((m) => {
+    }), f.appendChild(V), f.appendChild(N), Y.appendChild(f), t.addControl(Y, "left-top"), L = U((m) => {
       Y.setAttribute(
         "title",
         m ? "turn auto-brightness off" : "turn auto-brightness on"
@@ -411,12 +411,10 @@ const de = function(e) {
           );
         }
       }), a.ui.add(m, "top-right");
-      const L = [
-        a.extent.center.longitude,
-        a.extent.center.latitude
-      ];
+      let y = null;
       H.className = "esri-widget--button", H.title = "Recenter map on selected shot", H.innerHTML = '<span aria-hidden="true" class="esri-icon-zoom-to-object"></span><span class="esri-icon-font-fallback-text">Expand</span>', H.addEventListener("click", () => {
-        const s = Math.abs(w.geometry.longitude) < 1e-4 && Math.abs(w.geometry.latitude) < 1e-4 ? L : [w.geometry.longitude, w.geometry.latitude];
+        y || (y = [a.center.longitude, a.center.latitude]);
+        const s = Math.abs(w.geometry.longitude) == 0 && Math.abs(w.geometry.latitude) == 0 ? y : [w.geometry.longitude, w.geometry.latitude];
         console.log("recenter to", s), a.goTo({
           center: s
         });
@@ -462,13 +460,13 @@ const de = function(e) {
           s || t.hide();
       });
     }), C) {
-      const m = `${C}/2`, L = new v({
+      const m = `${C}/2`, y = new v({
         url: m,
         visible: !1,
         outFields: ["*"],
         editingEnabled: !0
       });
-      a.map.add(L);
+      a.map.add(y);
       const P = `${C}/0`;
       console.log("shots url is", P);
       const Z = new v({
@@ -541,7 +539,7 @@ const de = function(e) {
     }
   };
   document.addEventListener("keydown", ce), document.addEventListener("keyup", ie), this.destroy = function() {
-    document.removeEventListener("keydown", ce), document.removeEventListener("keyup", ie), h(), y(), A(), pe(), we(), E(), a.map.removeLayer(d), t.wrapper.removeChild(M), t.wrapper.removeChild(Y);
+    document.removeEventListener("keydown", ce), document.removeEventListener("keyup", ie), h(), A(), L(), pe(), we(), E(), a.map.removeLayer(d), t.wrapper.removeChild(M), t.wrapper.removeChild(Y);
   };
 };
 class qe extends HTMLElement {
