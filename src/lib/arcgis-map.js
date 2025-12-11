@@ -536,14 +536,20 @@ export const arcgisMap = function (config = {}) {
         }
       });
       mapView.ui.add(copyBtn, "top-right");
-
+      const mapCenter = [
+        mapView.extent.center.longitude,
+        mapView.extent.center.latitude,
+      ];
       recenterBtn.className = "esri-widget--button";
       recenterBtn.title = "Recenter map on selected shot";
       recenterBtn.innerHTML = `<span aria-hidden="true" class="esri-icon-zoom-to-object"></span><span class="esri-icon-font-fallback-text">Expand</span>`;
       recenterBtn.addEventListener("click", () => {
-        console.log("recenter going to", fovG.geometry);
+        const rc =
+          fovG.geometry.longitude == 0 && fovG.geometry.latitude == 0
+            ? mapCenter
+            : [fovG.geometry.longitude, fovG.geometry.latitude];
         mapView.goTo({
-          center: [fovG.geometry.longitude, fovG.geometry.latitude],
+          center: rc,
         });
       });
       mapView.ui.add(recenterBtn, "top-right");
@@ -656,8 +662,8 @@ export const arcgisMap = function (config = {}) {
 
         mapView.extent = layer.fullExtent;
 
-        console.log('in when',geocamLayers.length);
-      if (postLayerLoadCallback) postLayerLoadCallback();
+        console.log("in when", geocamLayers.length);
+        if (postLayerLoadCallback) postLayerLoadCallback();
       });
 
       const pointFeaturesUrl = `${src}/1`;
