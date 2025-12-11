@@ -548,6 +548,7 @@ export const arcgisMap = function (config = {}) {
           fovG.geometry.longitude == 0 && fovG.geometry.latitude == 0
             ? mapCenter
             : [fovG.geometry.longitude, fovG.geometry.latitude];
+            console.log("recenter to",rc);
         mapView.goTo({
           center: rc,
         });
