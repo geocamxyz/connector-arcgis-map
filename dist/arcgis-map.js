@@ -2,8 +2,8 @@ var Ne = typeof window < "u";
 const ge = {
   Promise: Ne ? window.Promise : void 0
 };
-var fe = "4.25", I = "next";
-function he(e) {
+var he = "4.25", I = "next";
+function fe(e) {
   if (e.toLowerCase() === I)
     return I;
   var o = e && e.match(/^(\d)\.(\d+)/);
@@ -13,11 +13,11 @@ function he(e) {
   };
 }
 function be(e) {
-  return e === void 0 && (e = fe), "https://js.arcgis.com/".concat(e, "/");
+  return e === void 0 && (e = he), "https://js.arcgis.com/".concat(e, "/");
 }
 function Te(e) {
-  e === void 0 && (e = fe);
-  var o = be(e), t = he(e);
+  e === void 0 && (e = he);
+  var o = be(e), t = fe(e);
   if (t !== I && t.major === 3) {
     var r = t.minor <= 10 ? "js/" : "";
     return "".concat(o).concat(r, "esri/css/esri.css");
@@ -39,7 +39,7 @@ function je(e) {
   return document.querySelector('link[href*="'.concat(e, '"]'));
 }
 function He(e) {
-  return !e || he(e) ? Te(e) : e;
+  return !e || fe(e) ? Te(e) : e;
 }
 function Ge(e, o) {
   var t = He(e), r = je(t);
@@ -80,10 +80,10 @@ function Ue(e) {
   });
   var t = o.version, r = o.url || be(t);
   return new ge.Promise(function(c, d) {
-    var f = ve();
-    if (f) {
-      var y = f.getAttribute("src");
-      y !== r ? d(new Error("The ArcGIS API for JavaScript is already loaded (".concat(y, ")."))) : F() ? c(f) : le(f, c, d);
+    var h = ve();
+    if (h) {
+      var y = h.getAttribute("src");
+      y !== r ? d(new Error("The ArcGIS API for JavaScript is already loaded (".concat(y, ")."))) : F() ? c(h) : le(h, c, d);
     } else if (F())
       d(new Error("The ArcGIS API for JavaScript is already loaded."));
     else {
@@ -92,9 +92,9 @@ function Ue(e) {
         var E = A === !0;
         Ge(E ? t : A, o.insertCssBefore);
       }
-      f = Ze(r), le(f, function() {
-        f.setAttribute("data-esri-loader", "loaded"), c(f);
-      }, d), document.body.appendChild(f);
+      h = Ze(r), le(h, function() {
+        h.setAttribute("data-esri-loader", "loaded"), c(h);
+      }, d), document.body.appendChild(h);
     }
   });
 }
@@ -132,7 +132,7 @@ const de = function(e) {
     e.latitude || (e.coords ? e.coords.latitude : e.geometry ? e.geometry.latitude : null)
   ];
 }, me = function(e, o) {
-  const [t, r] = de(e), [c, d] = de(o), f = c.toRad(), y = d.toRad(), A = t.toRad(), E = r.toRad(), M = Math.sin(f - A) * Math.cos(y), j = Math.cos(E) * Math.sin(y) - Math.sin(E) * Math.cos(y) * Math.cos(f - A);
+  const [t, r] = de(e), [c, d] = de(o), h = c.toRad(), y = d.toRad(), A = t.toRad(), E = r.toRad(), M = Math.sin(h - A) * Math.cos(y), j = Math.cos(E) * Math.sin(y) - Math.sin(E) * Math.cos(y) * Math.cos(h - A);
   return (Math.atan2(M, j).toDeg() + 360) % 360;
 }, k = (e, o = {}, t = "") => {
   const r = document.createElement(e);
@@ -168,7 +168,7 @@ const de = function(e) {
       }
 
     `);
-  let t, r, c = [], d, f, y, A, E, M, j, Y, U, Q, V, K, q, pe, $, we, _ = !0, ee, S;
+  let t, r, c = [], d, h, y, A, E, M, j, Y, U, Q, V, K, q, pe, $, we, _ = !0, ee, S;
   const { mapView: a, prevNextPlugin: X, widgets: Ce, expands: Se, src: C } = e, H = document.createElement("div"), te = function(n, u, i) {
     return {
       geometry: {
@@ -227,8 +227,8 @@ const de = function(e) {
     ), d.add(w), (i || i === 0) && ee([u, i]))) : H.classList.add("esri-disabled"));
   }, oe = function(n, u, i = {}) {
     const l = new RegExp(u, "i");
-    let h = l.test(n.name) || l.test(n.alias);
-    return h && i.description && (h = !!n.description), h;
+    let f = l.test(n.name) || l.test(n.alias);
+    return f && i.description && (f = !!n.description), f;
   }, ne = function(n) {
     if (n) {
       var u = document.createElement("textarea");
@@ -238,30 +238,30 @@ const de = function(e) {
   }, ye = (n, u) => {
     const i = n.base;
     if (n.filenames)
-      return JSON.parse(u[n.filenames]).map((l) => Array.isArray(l) ? l.map((h) => /^https?:\/\//i.test(h) ? l : `${i}${h}`) : /^https?:\/\//i.test(l) ? l : `${i}${l}`);
+      return JSON.parse(u[n.filenames]).map((l) => Array.isArray(l) ? l.map((f) => /^https?:\/\//i.test(f) ? l : `${i}${f}`) : /^https?:\/\//i.test(l) ? l : `${i}${l}`);
     {
-      const l = u[n.capture].split(".")[0], h = l.split("/").pop(), N = JSON.parse(u[n.lengths]), x = JSON.parse(u[n.offsets]);
+      const l = u[n.capture].split(".")[0], f = l.split("/").pop(), N = JSON.parse(u[n.lengths]), x = JSON.parse(u[n.offsets]);
       return N.map((v, m) => {
         const L = encodeURIComponent(
           `https://s3.us-west-004.backblazeb2.com/gc-raw-surveys-archive/${l}_${m}.tar`
         );
-        return `${i}${h}/${m}/${u[n.shot]}.jpg?offset=${x[m]}&length=${v}&container=${L}`;
+        return `${i}${f}/${m}/${u[n.shot]}.jpg?offset=${x[m]}&length=${v}&container=${L}`;
       });
     }
   }, Ae = function(n) {
     return c.findIndex((u) => u.layer == n.layer);
   }, Le = function(n) {
     if (t.label) {
-      const { capture: u, utc_time: i, shot: l } = n, h = new Date(i);
-      t.label(`${h.toLocaleString()}`);
+      const { capture: u, utc_time: i, shot: l } = n, f = new Date(i);
+      t.label(`${f.toLocaleString()}`);
     }
   };
   let re;
   const J = function(n, u) {
     const i = q();
     console.log("shotclick with viewlock", i);
-    const l = c[u], h = n.attributes[l.shot];
-    re = h, t.shot(h), X && (X.prev(n.attributes.prev), X.next(n.attributes.next));
+    const l = c[u], f = n.attributes[l.shot];
+    re = f, t.shot(f), X && (X.prev(n.attributes.prev), X.next(n.attributes.next));
     const N = [0, 1, 2].map(
       (L) => Oe(l.calibrationBase, {
         camera: L,
@@ -318,7 +318,7 @@ const de = function(e) {
         w.geometry.latitude
       );
     }), U = t.store("autobrightness"), Y = k("DIV", { class: "geocam-auto-brightness" });
-    const h = k("LABEL", { class: "geocam-auto-brightness-label" });
+    const f = k("LABEL", { class: "geocam-auto-brightness-label" });
     V = k("INPUT", {
       type: "checkbox",
       class: "geocam-auto-brightness-checkbox"
@@ -330,7 +330,7 @@ const de = function(e) {
     );
     V.disabled = !0, V.checked = U(), V.addEventListener("change", () => {
       U(V.checked);
-    }), h.appendChild(V), h.appendChild(N), Y.appendChild(h), t.addControl(Y, "left-top"), A = U((m) => {
+    }), f.appendChild(V), f.appendChild(N), Y.appendChild(f), t.addControl(Y, "left-top"), A = U((m) => {
       Y.setAttribute(
         "title",
         m ? "turn auto-brightness off" : "turn auto-brightness on"
@@ -416,11 +416,11 @@ const de = function(e) {
         a.extent.center.latitude
       ];
       H.className = "esri-widget--button", H.title = "Recenter map on selected shot", H.innerHTML = '<span aria-hidden="true" class="esri-icon-zoom-to-object"></span><span class="esri-icon-font-fallback-text">Expand</span>', H.addEventListener("click", () => {
-        const s = w.geometry.longitude == 0 && w.geometry.latitude == 0 ? L : [w.geometry.longitude, w.geometry.latitude];
+        const s = Math.abs(w.geometry.longitude) < 1e-4 && Math.abs(w.geometry.latitude) < 1e-4 ? L : [w.geometry.longitude, w.geometry.latitude];
         console.log("recenter to", s), a.goTo({
           center: s
         });
-      }), a.ui.add(H, "top-right"), f = t.facing((s) => {
+      }), a.ui.add(H, "top-right"), h = t.facing((s) => {
         O(s);
       });
       const P = new URLSearchParams(window.location.hash.substr(1)), Z = P.get("center");
@@ -541,7 +541,7 @@ const de = function(e) {
     }
   };
   document.addEventListener("keydown", ce), document.addEventListener("keyup", ie), this.destroy = function() {
-    document.removeEventListener("keydown", ce), document.removeEventListener("keyup", ie), f(), y(), A(), pe(), we(), E(), a.map.removeLayer(d), t.wrapper.removeChild(M), t.wrapper.removeChild(Y);
+    document.removeEventListener("keydown", ce), document.removeEventListener("keyup", ie), h(), y(), A(), pe(), we(), E(), a.map.removeLayer(d), t.wrapper.removeChild(M), t.wrapper.removeChild(Y);
   };
 };
 class qe extends HTMLElement {
@@ -559,10 +559,10 @@ class qe extends HTMLElement {
           "geocam-viewer-prev-next-control"
         )[0], d = c && c.plugin;
         this.plugin = new Re({ mapView: o, prevNextPlugin: d, src: t }), r.viewer.plugin(this.plugin);
-        const f = r.getElementsByTagName(
+        const h = r.getElementsByTagName(
           "geocam-viewer-screen-shot"
         )[0];
-        f && f.plugin && f.plugin.arcgisView(o);
+        h && h.plugin && h.plugin.arcgisView(o);
       } else
         console.error("GeocamViewerArcgisMap must be a child of GeocamViewer");
     }, console.log("GeocamViewerArcgisMap connected");
