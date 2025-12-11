@@ -2,8 +2,8 @@ var ke = typeof window < "u";
 const me = {
   Promise: ke ? window.Promise : void 0
 };
-var fe = "4.25", J = "next";
-function ge(e) {
+var ge = "4.25", J = "next";
+function fe(e) {
   if (e.toLowerCase() === J)
     return J;
   var o = e && e.match(/^(\d)\.(\d+)/);
@@ -13,11 +13,11 @@ function ge(e) {
   };
 }
 function he(e) {
-  return e === void 0 && (e = fe), "https://js.arcgis.com/".concat(e, "/");
+  return e === void 0 && (e = ge), "https://js.arcgis.com/".concat(e, "/");
 }
 function Ne(e) {
-  e === void 0 && (e = fe);
-  var o = he(e), t = ge(e);
+  e === void 0 && (e = ge);
+  var o = he(e), t = fe(e);
   if (t !== J && t.major === 3) {
     var r = t.minor <= 10 ? "js/" : "";
     return "".concat(o).concat(r, "esri/css/esri.css");
@@ -39,7 +39,7 @@ function Me(e) {
   return document.querySelector('link[href*="'.concat(e, '"]'));
 }
 function je(e) {
-  return !e || ge(e) ? Ne(e) : e;
+  return !e || fe(e) ? Ne(e) : e;
 }
 function He(e, o) {
   var t = je(e), r = Me(t);
@@ -80,21 +80,21 @@ function Ye(e) {
   });
   var t = o.version, r = o.url || he(t);
   return new me.Promise(function(s, d) {
-    var g = be();
-    if (g) {
-      var L = g.getAttribute("src");
-      L !== r ? d(new Error("The ArcGIS API for JavaScript is already loaded (".concat(L, ")."))) : I() ? s(g) : ie(g, s, d);
+    var f = be();
+    if (f) {
+      var z = f.getAttribute("src");
+      z !== r ? d(new Error("The ArcGIS API for JavaScript is already loaded (".concat(z, ")."))) : I() ? s(f) : ie(f, s, d);
     } else if (I())
       d(new Error("The ArcGIS API for JavaScript is already loaded."));
     else {
-      var z = o.css;
-      if (z) {
-        var E = z === !0;
-        He(E ? t : z, o.insertCssBefore);
+      var k = o.css;
+      if (k) {
+        var E = k === !0;
+        He(E ? t : k, o.insertCssBefore);
       }
-      g = Pe(r), ie(g, function() {
-        g.setAttribute("data-esri-loader", "loaded"), s(g);
-      }, d), document.body.appendChild(g);
+      f = Pe(r), ie(f, function() {
+        f.setAttribute("data-esri-loader", "loaded"), s(f);
+      }, d), document.body.appendChild(f);
     }
   });
 }
@@ -132,7 +132,7 @@ const ue = function(e) {
     e.latitude || (e.coords ? e.coords.latitude : e.geometry ? e.geometry.latitude : null)
   ];
 }, de = function(e, o) {
-  const [t, r] = ue(e), [s, d] = ue(o), g = s.toRad(), L = d.toRad(), z = t.toRad(), E = r.toRad(), M = Math.sin(g - z) * Math.cos(L), j = Math.cos(E) * Math.sin(L) - Math.sin(E) * Math.cos(L) * Math.cos(g - z);
+  const [t, r] = ue(e), [s, d] = ue(o), f = s.toRad(), z = d.toRad(), k = t.toRad(), E = r.toRad(), M = Math.sin(f - k) * Math.cos(z), j = Math.cos(E) * Math.sin(z) - Math.sin(E) * Math.cos(z) * Math.cos(f - k);
   return (Math.atan2(M, j).toDeg() + 360) % 360;
 }, N = (e, o = {}, t = "") => {
   const r = document.createElement(e);
@@ -168,7 +168,7 @@ const ue = function(e) {
       }
 
     `);
-  let t, r, s = [], d, g, L, z, E, M, j, Z, Y, F, U, Q, R, ve, K, pe, $ = !0, _, C;
+  let t, r, s = [], d, f, z, k, E, M, j, Z, Y, F, U, Q, R, ve, K, pe, $ = !0, _, C;
   const { mapView: a, prevNextPlugin: S, widgets: qe, expands: Ce, src: q } = e, H = document.createElement("div"), ee = function(n, u, c) {
     return {
       geometry: {
@@ -186,7 +186,7 @@ const ue = function(e) {
       }
     };
   };
-  let k = ee(0, 0, 0);
+  let y = ee(0, 0, 0);
   const we = function(n) {
     return {
       attributes: {
@@ -220,11 +220,11 @@ const ue = function(e) {
   const V = function(n, u, c) {
     d && (d.removeAll(), t.visible() ? (H.classList.remove("esri-disabled"), n !== null && (j() ? (a.rotation = n * -1, n = 0, (c || c === 0) && a.goTo({
       center: [u, c]
-    })) : a.rotation = 0, k = ee(
+    })) : a.rotation = 0, y = ee(
       n || 0,
-      u || k.geometry.longitude,
-      c || k.geometry.latitude
-    ), d.add(k), (c || c === 0) && _([u, c]))) : H.classList.add("esri-disabled"));
+      u || y.geometry.longitude,
+      c || y.geometry.latitude
+    ), d.add(y), (c || c === 0) && _([u, c]))) : H.classList.add("esri-disabled"));
   }, te = function(n, u, c = {}) {
     const l = new RegExp(u, "i");
     let h = l.test(n.name) || l.test(n.alias);
@@ -308,14 +308,14 @@ const ue = function(e) {
     );
     c.checked = j(), c.addEventListener("change", () => {
       j(c.checked);
-    }), u.appendChild(c), u.appendChild(l), M.appendChild(u), t.addControl(M, "left-top"), L = j((m) => {
+    }), u.appendChild(c), u.appendChild(l), M.appendChild(u), t.addControl(M, "left-top"), z = j((m) => {
       M.setAttribute(
         "title",
         m ? "turn auto-rotate off" : "turn auto-rotate on"
       ), V(
         t.facing(),
-        k.geometry.longitude,
-        k.geometry.latitude
+        y.geometry.longitude,
+        y.geometry.latitude
       );
     }), Y = t.store("autobrightness"), Z = N("DIV", { class: "geocam-auto-brightness" });
     const h = N("LABEL", { class: "geocam-auto-brightness-label" });
@@ -330,7 +330,7 @@ const ue = function(e) {
     );
     U.disabled = !0, U.checked = Y(), U.addEventListener("change", () => {
       Y(U.checked);
-    }), h.appendChild(U), h.appendChild(T), Z.appendChild(h), t.addControl(Z, "left-top"), z = Y((m) => {
+    }), h.appendChild(U), h.appendChild(T), Z.appendChild(h), t.addControl(Z, "left-top"), k = Y((m) => {
       Z.setAttribute(
         "title",
         m ? "turn auto-brightness off" : "turn auto-brightness on"
@@ -357,8 +357,8 @@ const ue = function(e) {
           "w",
           "s"
           // w and s don't seem to be used for map actions but just in case that changes in the future.
-        ], f = i && i.key;
-        t.visible() && b.indexOf(f) !== -1 && i.stopPropagation();
+        ], g = i && i.key;
+        t.visible() && b.indexOf(g) !== -1 && i.stopPropagation();
       }), a.on("immediate-click", (i) => {
         if (!$)
           return;
@@ -368,25 +368,25 @@ const ue = function(e) {
         };
         if (console.log("immediate-click", i, b), r) {
           console.log("space wqas down");
-          const f = a.toMap(b);
-          if (R(f), X && a.graphics.removeAll(), X = we(f), a.graphics.add(X), t.visible()) {
-            const y = de(k.geometry, f);
-            t.facing(y);
+          const g = a.toMap(b);
+          if (R(g), X && a.graphics.removeAll(), X = we(g), a.graphics.add(X), t.visible()) {
+            const A = de(y.geometry, g);
+            t.facing(A);
           }
         } else
-          a.hitTest(b).then((f) => {
-            if (f.results && f.results.length > 0)
-              for (var y = 0; y < f.results.length; y++) {
-                const A = f.results[y].graphic, p = ye(A);
+          a.hitTest(b).then((g) => {
+            if (g.results && g.results.length > 0)
+              for (var A = 0; A < g.results.length; A++) {
+                const L = g.results[A].graphic, p = ye(L);
                 if (p >= 0) {
-                  Object.entries(A.attributes).length < 2 ? A.layer.queryFeatures({
-                    objectIds: [A.attributes.id],
+                  Object.entries(L.attributes).length < 2 ? L.layer.queryFeatures({
+                    objectIds: [L.attributes.id],
                     returnGeometry: !0,
                     outFields: "*",
-                    where: A.layer.definitionExpression
+                    where: L.layer.definitionExpression
                   }).then((W) => {
                     W.features.length > 0 && D(W.features[0], p);
-                  }) : D(A, p);
+                  }) : D(L, p);
                   break;
                 }
               }
@@ -397,24 +397,24 @@ const ue = function(e) {
     <span class="esri-icon-font-fallback-text">Copy short URL to clipboad</span>`, m.addEventListener("click", async () => {
         const i = `${document.location.origin}/🔗`;
         try {
-          const f = await (await fetch(i, {
+          const g = await (await fetch(i, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               link: { url: document.location.toString() }
             })
           })).json();
-          await navigator.clipboard.writeText(f.link), alert(`Url copied to clipboard: ${f.link}`);
+          await navigator.clipboard.writeText(g.link), alert(`Url copied to clipboard: ${g.link}`);
         } catch (b) {
           alert(
             `Sorry, the short URL could not be copied to the clipboard: ${b}`
           );
         }
       }), a.ui.add(m, "top-right"), H.className = "esri-widget--button", H.title = "Recenter map on selected shot", H.innerHTML = '<span aria-hidden="true" class="esri-icon-zoom-to-object"></span><span class="esri-icon-font-fallback-text">Expand</span>', H.addEventListener("click", () => {
-        a.goTo({
-          center: [k.geometry.longitude, k.geometry.latitude]
+        console.log("recenter going to", y.geometry), a.goTo({
+          center: [y.geometry.longitude, y.geometry.latitude]
         });
-      }), a.ui.add(H, "top-right"), g = t.facing((i) => {
+      }), a.ui.add(H, "top-right"), f = t.facing((i) => {
         V(i);
       });
       const x = new URLSearchParams(window.location.hash.substr(1)), O = x.get("center");
@@ -425,8 +425,8 @@ const ue = function(e) {
       if (B) {
         const i = JSON.parse(B);
         if (i) {
-          const [b, f] = i;
-          V(t.facing(), b, f);
+          const [b, g] = i;
+          V(t.facing(), b, g);
         }
       }
       G.watch(a, "scale", ae), ae(a.scale), G.watch(a, "center", Le), t.shot((i) => {
@@ -435,9 +435,9 @@ const ue = function(e) {
         );
         if (b && b !== ne) {
           console.log("Got shot", i, "layers", s.length);
-          const f = function() {
-            s.forEach((y, A) => {
-              const p = y.layer;
+          const g = function() {
+            console.log("Loading shot", b), s.forEach((A, L) => {
+              const p = A.layer;
               t.resetProgress(), console.log("Querying layer for shot", p, b), p.queryFeatures({
                 objectIds: [b],
                 returnGeometry: !0,
@@ -446,12 +446,12 @@ const ue = function(e) {
               }).then((W) => {
                 if (console.log("Got results for layer", p, W), W.features.length > 0) {
                   const ze = W.features[0];
-                  D(ze, A);
+                  D(ze, L);
                 }
               });
             });
           };
-          s.length > 0 ? f() : C = f;
+          s.length > 0 ? g() : C = g;
         } else
           i || t.hide();
       });
@@ -469,9 +469,10 @@ const ue = function(e) {
         url: O,
         definitionExpression: "mod(id,100) = 0"
         // start with agressive simplifaction - view should get scale change early on to override this
+        //    outFields: ["*"]
       });
       a.map.add(P), P.when((b) => {
-        const f = b.fields, y = f.find((p) => te(p, "filenames")), A = f.find((p) => te(p, "calibration"));
+        const g = b.fields, A = g.find((p) => te(p, "filenames")), L = g.find((p) => te(p, "calibration"));
         s.push({
           layer: P,
           shot: "id",
@@ -480,13 +481,13 @@ const ue = function(e) {
           rotation: "rotation_matrix",
           datetime: "utc_time",
           brightness: null,
-          base: oe(y && y.description),
+          base: oe(A && A.description),
           calibration: "calibration",
           rigId: null,
-          calibrationBase: oe(A.description),
+          calibrationBase: oe(L.description),
           capture: "capture"
-        }), a.extent = b.fullExtent;
-      }), C && C();
+        }), a.extent = b.fullExtent, console.log("in when", s.length), C && C();
+      });
       const B = `${q}/1`;
       console.log("points features url is", B);
       const i = new v({
@@ -534,7 +535,7 @@ const ue = function(e) {
     }
   };
   document.addEventListener("keydown", se), document.addEventListener("keyup", ce), this.destroy = function() {
-    document.removeEventListener("keydown", se), document.removeEventListener("keyup", ce), g(), L(), z(), ve(), pe(), E(), a.map.removeLayer(d), t.wrapper.removeChild(M), t.wrapper.removeChild(Z);
+    document.removeEventListener("keydown", se), document.removeEventListener("keyup", ce), f(), z(), k(), ve(), pe(), E(), a.map.removeLayer(d), t.wrapper.removeChild(M), t.wrapper.removeChild(Z);
   };
 };
 class Re extends HTMLElement {
@@ -552,10 +553,10 @@ class Re extends HTMLElement {
           "geocam-viewer-prev-next-control"
         )[0], d = s && s.plugin;
         this.plugin = new Be({ mapView: o, prevNextPlugin: d, src: t }), r.viewer.plugin(this.plugin);
-        const g = r.getElementsByTagName(
+        const f = r.getElementsByTagName(
           "geocam-viewer-screen-shot"
         )[0];
-        g && g.plugin && g.plugin.arcgisView(o);
+        f && f.plugin && f.plugin.arcgisView(o);
       } else
         console.error("GeocamViewerArcgisMap must be a child of GeocamViewer");
     }, console.log("GeocamViewerArcgisMap connected");
