@@ -168,7 +168,7 @@ const de = function(e) {
       }
 
     `);
-  let t, r, c = [], d, h, A, L, E, M, j, Y, U, Q, V, K, q, pe, $, we, _ = !0, ee, S;
+  let t, r, c = [], d, h, A, L, E, M, j, Y, U, Q, W, K, q, pe, $, we, _ = !0, ee, S;
   const { mapView: a, prevNextPlugin: X, widgets: Ce, expands: Se, src: C } = e, H = document.createElement("div"), te = function(n, u, i) {
     return {
       geometry: {
@@ -217,7 +217,7 @@ const de = function(e) {
     };
   };
   let D = null;
-  const O = function(n, u, i) {
+  const V = function(n, u, i) {
     d && (d.removeAll(), t.visible() ? (H.classList.remove("esri-disabled"), n !== null && (j() ? (a.rotation = n * -1, n = 0, (i || i === 0) && a.goTo({
       center: [u, i]
     })) : a.rotation = 0, w = te(
@@ -268,14 +268,16 @@ const de = function(e) {
         rig_id: n.attributes[l.rigId],
         calibration: n.attributes[l.calibration]
       })
-    ), x = n.attributes[l.yaw], G = n.attributes[l.rotation], v = U() && l.brightness ? n.attributes[l.brightness] : null;
+    ), x = n.attributes[l.yaw], G = n.attributes[l.rotation];
+    debugger;
+    const v = U() && l.brightness ? n.attributes[l.brightness] : null;
     Q = v;
     const m = ye(l, n.attributes);
     if (i) {
       const y = me(n.geometry, i);
       t.facing(y);
     }
-    t.show(m, x, N, G, v), O(
+    t.show(m, x, N, G, v), V(
       t.facing(),
       n.geometry.longitude,
       n.geometry.latitude
@@ -291,7 +293,7 @@ const de = function(e) {
           m.layer,
           v
         ));
-      }), K(a.zoom), O(t.facing());
+      }), K(a.zoom), V(t.facing());
     }, 500);
   }, ze = function(n, u, i, l) {
     $([a.center.longitude, a.center.latitude]);
@@ -312,14 +314,16 @@ const de = function(e) {
       M.setAttribute(
         "title",
         m ? "turn auto-rotate off" : "turn auto-rotate on"
-      ), O(
+      ), V(
         t.facing(),
         w.geometry.longitude,
         w.geometry.latitude
       );
-    }), U = t.store("autobrightness"), Y = k("DIV", { class: "geocam-auto-brightness" });
+    }), U = t.store("autobrightness");
+    debugger;
+    Y = k("DIV", { class: "geocam-auto-brightness" });
     const f = k("LABEL", { class: "geocam-auto-brightness-label" });
-    V = k("INPUT", {
+    W = k("INPUT", {
       type: "checkbox",
       class: "geocam-auto-brightness-checkbox"
     });
@@ -328,14 +332,14 @@ const de = function(e) {
       { class: "geocam-auto-brightness-span geocam-viewer-control-button" },
       " Autobrightness"
     );
-    V.disabled = !0, V.checked = U(), V.addEventListener("change", () => {
-      U(V.checked);
-    }), f.appendChild(V), f.appendChild(N), Y.appendChild(f), t.addControl(Y, "left-top"), L = U((m) => {
+    W.checked = U(), W.addEventListener("change", () => {
+      U(W.checked);
+    }), f.appendChild(W), f.appendChild(N), Y.appendChild(f), t.addControl(Y, "left-top"), L = U((m) => {
       Y.setAttribute(
         "title",
         m ? "turn auto-brightness off" : "turn auto-brightness on"
       ), t.reload(U() ? Q : "[1,1,1]");
-    }), E = t.visible((m) => O(t.facing()));
+    }), E = t.visible((m) => V(t.facing()));
     const [x, G, v] = await Ve([
       "esri/layers/GraphicsLayer",
       "esri/core/watchUtils",
@@ -384,8 +388,8 @@ const de = function(e) {
                     returnGeometry: !0,
                     outFields: "*",
                     where: p.layer.definitionExpression
-                  }).then((W) => {
-                    W.features.length > 0 && J(W.features[0], T);
+                  }).then((O) => {
+                    O.features.length > 0 && J(O.features[0], T);
                   }) : J(p, T);
                   break;
                 }
@@ -419,7 +423,7 @@ const de = function(e) {
           center: s
         });
       }), a.ui.add(H, "top-right"), h = t.facing((s) => {
-        O(s);
+        V(s);
       });
       const P = new URLSearchParams(window.location.hash.substr(1)), Z = P.get("center");
       Z && (a.center = JSON.parse(Z));
@@ -430,7 +434,7 @@ const de = function(e) {
         const s = JSON.parse(R);
         if (s) {
           const [b, g] = s;
-          O(t.facing(), b, g);
+          V(t.facing(), b, g);
         }
       }
       G.watch(a, "scale", se), se(a.scale), G.watch(a, "center", ze), t.shot((s) => {
@@ -447,9 +451,9 @@ const de = function(e) {
                 returnGeometry: !0,
                 outFields: "*",
                 where: T.definitionExpression
-              }).then((W) => {
-                if (console.log("Got results for layer", T, W), W.features.length > 0) {
-                  const ke = W.features[0];
+              }).then((O) => {
+                if (console.log("Got results for layer", T, O), O.features.length > 0) {
+                  const ke = O.features[0];
                   J(ke, p);
                 }
               });
@@ -484,7 +488,7 @@ const de = function(e) {
           yaw: "yaw",
           rotation: "rotation_matrix",
           datetime: "utc_time",
-          brightness: null,
+          brightness: "brightness_scalar",
           base: ne(g && g.description),
           calibration: "calibration",
           rigId: null,
