@@ -268,9 +268,7 @@ const de = function(e) {
         rig_id: n.attributes[l.rigId],
         calibration: n.attributes[l.calibration]
       })
-    ), x = n.attributes[l.yaw], G = n.attributes[l.rotation];
-    debugger;
-    const v = U() && l.brightness ? n.attributes[l.brightness] : null;
+    ), x = n.attributes[l.yaw], G = n.attributes[l.rotation], v = U() && l.brightness ? n.attributes[l.brightness] : null;
     Q = v;
     const m = ye(l, n.attributes);
     if (i) {
@@ -319,9 +317,7 @@ const de = function(e) {
         w.geometry.longitude,
         w.geometry.latitude
       );
-    }), U = t.store("autobrightness");
-    debugger;
-    Y = k("DIV", { class: "geocam-auto-brightness" });
+    }), U = t.store("autobrightness"), Y = k("DIV", { class: "geocam-auto-brightness" });
     const f = k("LABEL", { class: "geocam-auto-brightness-label" });
     W = k("INPUT", {
       type: "checkbox",
