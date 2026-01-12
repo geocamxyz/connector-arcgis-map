@@ -298,7 +298,6 @@ export const arcgisMap = function (config = {}) {
     );
     const yaw = graphic.attributes[shotLayer.yaw];
     const rotation = graphic.attributes[shotLayer.rotation];
-    debugger;
     const brightness =
       autoBrightness() && shotLayer.brightness
         ? graphic.attributes[shotLayer.brightness]
@@ -392,7 +391,6 @@ export const arcgisMap = function (config = {}) {
     });
 
     autoBrightness = viewer.store("autobrightness");
-    debugger;
     autoBrightnessElement = node("DIV", { class: "geocam-auto-brightness" });
     const abLabel = node("LABEL", { class: "geocam-auto-brightness-label" });
     abCheckbox = node("INPUT", {
