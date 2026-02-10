@@ -279,6 +279,21 @@ export const arcgisMap = function (config = {}) {
     }
   };
 
+  const parseTags = (value) => {
+    if (Array.isArray(value)) return value.filter((tag) => typeof tag === "string");
+    if (typeof value === "string") {
+      try {
+        const parsed = JSON.parse(value);
+        if (Array.isArray(parsed)) {
+          return parsed.filter((tag) => typeof tag === "string");
+        }
+      } catch (err) {
+        return [];
+      }
+    }
+    return [];
+  };
+
   const isShot = function (graphic) {
     return geocamLayers.findIndex((obj) => obj.layer == graphic.layer);
   };
@@ -341,6 +356,7 @@ export const arcgisMap = function (config = {}) {
       capture: graphic.attributes[shotLayer.capture] || null,
       exposure_us: exposureValues,
       gain_boost: gainValues,
+      tags: parseTags(graphic.attributes.image_tags)
     };
     const urls = shotUrls(shotLayer, graphic.attributes);
     if (lockedTo) {
