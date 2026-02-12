@@ -253,8 +253,7 @@ const ce = function(e) {
       });
     }
   }, ye = (r) => {
-    if (Array.isArray(r))
-      return r.filter((i) => typeof i == "string");
+    if (Array.isArray(r)) return r.filter((i) => typeof i == "string");
     if (typeof r == "string")
       try {
         const i = JSON.parse(r);
@@ -360,8 +359,7 @@ const ce = function(e) {
       s.on("clickable", (c) => {
         Q = c;
       }), s.on("key-down", (c) => {
-        if (c && c.target && c.target.closest("input,calcite-input"))
-          return;
+        if (c && c.target && c.target.closest("input,calcite-input")) return;
         const m = [
           "ArrowUp",
           "ArrowDown",
@@ -375,8 +373,7 @@ const ce = function(e) {
         ], f = c && c.key;
         t.visible() && m.indexOf(f) !== -1 && c.stopPropagation();
       }), s.on("immediate-click", (c) => {
-        if (!Q)
-          return;
+        if (!Q) return;
         const m = {
           x: c.x,
           y: c.y
@@ -432,10 +429,10 @@ const ce = function(e) {
       }), s.ui.add(Z, "top-right"), g = t.facing((c) => {
         P(c);
       });
-      const p = new URLSearchParams(window.location.hash.substr(1)), v = p.get("center");
-      v && (console.log("got center from hash params", v), s.center = JSON.parse(v), X = !0);
-      const x = p.get("zoom");
-      x && (console.log("got zoom from hash params", x), s.zoom = JSON.parse(x));
+      const p = new URLSearchParams(window.location.hash.substr(1)), v = JSON.parse(p.get("center") || null);
+      v && (console.log("got center from hash params", v), s.center = v, X = !0);
+      const x = JSON.parse(p.get("zoom") || null);
+      x && (console.log("got zoom from hash params", x), s.zoom = x);
       const E = p.get("marker");
       if (E) {
         const c = JSON.parse(E);
@@ -500,7 +497,7 @@ const ce = function(e) {
           rigId: null,
           calibrationBase: ee(A.description),
           capture: "capture"
-        }), X ? X = !1 : s.extent = m.fullExtent, W && (t.shot(W), W = null);
+        }), X ? (console.log("center was set"), X = !1) : (console.log("center not set using layer extent", m.fullExtent), s.extent = m.fullExtent), W && (t.shot(W), W = null);
       });
       const E = `${Y}/1`;
       console.log("points features url is", E);
