@@ -578,16 +578,16 @@ export const arcgisMap = function (config = {}) {
 
       // get center and zoom from hash params if there - we're not subscribing to the relevant stores because we only want this to happen once
       const hashParams = new URLSearchParams(window.location.hash.substr(1));
-      const center = hashParams.get("center");
+      const center = JSON.parse(hashParams.get("center") || null);
       if (center) {
         console.log('got center from hash params', center);
-        mapView.center = JSON.parse(center);
+        mapView.center = center // JSON.parse(center);
         centreSet = true;
       }
-      const zoom = hashParams.get("zoom");
+      const zoom = JSON.parse(hashParams.get("zoom") || null);
       if (zoom) {
         console.log('got zoom from hash params', zoom);
-        mapView.zoom = JSON.parse(zoom);
+        mapView.zoom = zoom;
       }
       const marker = hashParams.get("marker");
       if (marker) {
@@ -677,8 +677,10 @@ export const arcgisMap = function (config = {}) {
         });
 
         if (!centreSet) {
+          console.log('center not set using layer extent',layer.fullExtent)
         mapView.extent = layer.fullExtent;
         } else {
+           console.log('center was set');
           centreSet = false;
         }
 
