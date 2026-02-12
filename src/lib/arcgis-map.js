@@ -375,7 +375,7 @@ export const arcgisMap = function (config = {}) {
     setLabel(graphic.attributes);
   };
 
-  let scaleChangeTimeout;
+  let scaleChangeTimeout, deferredShot, centreSet;
 
   const scaleChange = function (newValue, oldValue, propertyName, target) {
     clearTimeout(scaleChangeTimeout);
@@ -580,10 +580,13 @@ export const arcgisMap = function (config = {}) {
       const hashParams = new URLSearchParams(window.location.hash.substr(1));
       const center = hashParams.get("center");
       if (center) {
+        console.log('got center from hash params', center);
         mapView.center = JSON.parse(center);
+        centreSet = true;
       }
       const zoom = hashParams.get("zoom");
       if (zoom) {
+        console.log('got zoom from hash params', zoom);
         mapView.zoom = JSON.parse(zoom);
       }
       const marker = hashParams.get("marker");
@@ -605,6 +608,10 @@ export const arcgisMap = function (config = {}) {
         );
         if (id && id !== lastShot) {
           console.log("Got shot", shot, "layers", geocamLayers.length);
+          if (geocamLayers.length === 0) {
+            deferredShot = shot;
+            return;
+          }
           geocamLayers.forEach((gcl, i) => {
             const layer = gcl.layer;
             viewer.resetProgress();
@@ -669,7 +676,16 @@ export const arcgisMap = function (config = {}) {
           capture: "capture",
         });
 
+        if (!centreSet) {
         mapView.extent = layer.fullExtent;
+        } else {
+          centreSet = false;
+        }
+
+        if (deferredShot) {
+          viewer.shot(deferredShot);
+          deferredShot = null;
+        }
       });
 
       const pointFeaturesUrl = `${src}/1`;
@@ -705,6 +721,7 @@ export const arcgisMap = function (config = {}) {
 
       // move geocam layers to top
       mapView.when(() => {
+        console.log("mapview when");
         mapView.map.reorder(fovLayer, 1000);
         mapView.map.reorder(shotsLayer, 1000);
         mapView.map.reorder(pointsFeaturesLayer, 1000);
