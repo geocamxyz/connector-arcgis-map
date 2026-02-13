@@ -22,14 +22,14 @@ const normalizePoint = function (point) {
       (point.coords
         ? point.coords.longitude
         : point.geometry
-        ? point.geometry.longitude
-        : null),
+          ? point.geometry.longitude
+          : null),
     point.latitude ||
       (point.coords
         ? point.coords.latitude
         : point.geometry
-        ? point.geometry.latitude
-        : null),
+          ? point.geometry.latitude
+          : null),
   ];
 };
 
@@ -216,7 +216,7 @@ export const arcgisMap = function (config = {}) {
           fovG = fovGraphic(
             angle || 0,
             lng || fovG.geometry.longitude,
-            lat || fovG.geometry.latitude
+            lat || fovG.geometry.latitude,
           );
           fovLayer.add(fovG);
           if (lat || lat === 0) {
@@ -258,8 +258,8 @@ export const arcgisMap = function (config = {}) {
         return Array.isArray(f)
           ? f.map((g) => (/^https?:\/\//i.test(g) ? f : `${base}${g}`))
           : /^https?:\/\//i.test(f)
-          ? f
-          : `${base}${f}`;
+            ? f
+            : `${base}${f}`;
       });
     } else {
       const capturePath = attributes[layer.capture].split(".")[0];
@@ -268,7 +268,7 @@ export const arcgisMap = function (config = {}) {
       const offsets = JSON.parse(attributes[layer.offsets]);
       const urls = lengths.map((length, i) => {
         const container = encodeURIComponent(
-          `https://s3.us-west-004.backblazeb2.com/gc-raw-surveys-archive/${capturePath}_${i}.tar`
+          `https://s3.us-west-004.backblazeb2.com/gc-raw-surveys-archive/${capturePath}_${i}.tar`,
         );
         const url = `${base}${captureName}/${i}/${
           attributes[layer.shot]
@@ -280,7 +280,8 @@ export const arcgisMap = function (config = {}) {
   };
 
   const parseTags = (value) => {
-    if (Array.isArray(value)) return value.filter((tag) => typeof tag === "string");
+    if (Array.isArray(value))
+      return value.filter((tag) => typeof tag === "string");
     if (typeof value === "string") {
       try {
         const parsed = JSON.parse(value);
@@ -325,7 +326,7 @@ export const arcgisMap = function (config = {}) {
         camera: i,
         rig_id: graphic.attributes[shotLayer.rigId],
         calibration: graphic.attributes[shotLayer.calibration],
-      })
+      }),
     );
     const yaw = graphic.attributes[shotLayer.yaw];
     const rotation = graphic.attributes[shotLayer.rotation];
@@ -336,11 +337,11 @@ export const arcgisMap = function (config = {}) {
     lastBrightness = brightness;
     const exposureValues = normalizeTriplet(
       graphic.attributes.exposure_us,
-      DEFAULT_EXPOSURE_US
+      DEFAULT_EXPOSURE_US,
     );
     const gainValues = normalizeTriplet(
       graphic.attributes.gain_boost,
-      DEFAULT_GAIN_BOOST
+      DEFAULT_GAIN_BOOST,
     );
     const shotInfo = {
       id: shotIndex,
@@ -356,7 +357,7 @@ export const arcgisMap = function (config = {}) {
       capture: graphic.attributes[shotLayer.capture] || null,
       exposure_us: exposureValues,
       gain_boost: gainValues,
-      tags: parseTags(graphic.attributes.image_tags)
+      tags: parseTags(graphic.attributes.image_tags),
     };
     const urls = shotUrls(shotLayer, graphic.attributes);
     if (lockedTo) {
@@ -370,7 +371,7 @@ export const arcgisMap = function (config = {}) {
     updateFov(
       viewer.facing(),
       graphic.geometry.longitude,
-      graphic.geometry.latitude
+      graphic.geometry.latitude,
     );
     setLabel(graphic.attributes);
   };
@@ -391,7 +392,7 @@ export const arcgisMap = function (config = {}) {
           console.log(
             "definition expression changed for",
             geocamLayer.layer,
-            definitionExpression
+            definitionExpression,
           );
         }
       });
@@ -422,7 +423,7 @@ export const arcgisMap = function (config = {}) {
     const span = node(
       "SPAN",
       { class: "geocam-auto-rotate-span geocam-viewer-control-button" },
-      " Autorotate"
+      " Autorotate",
     );
     checkbox.checked = autoRotate();
     checkbox.addEventListener("change", () => {
@@ -436,12 +437,12 @@ export const arcgisMap = function (config = {}) {
     unsubAutorotate = autoRotate((ar) => {
       autoRotateElement.setAttribute(
         "title",
-        ar ? "turn auto-rotate off" : "turn auto-rotate on"
+        ar ? "turn auto-rotate off" : "turn auto-rotate on",
       );
       updateFov(
         viewer.facing(),
         fovG.geometry.longitude,
-        fovG.geometry.latitude
+        fovG.geometry.latitude,
       );
     });
 
@@ -463,7 +464,12 @@ export const arcgisMap = function (config = {}) {
       });
 
       mapView.on("key-down", (event) => {
-        if (event && event.target && event.target.closest('input,calcite-input')) return;
+        if (
+          event &&
+          event.target &&
+          event.target.closest("input,calcite-input")
+        )
+          return;
         // stop map keyboard navigation when the viewer is visible so we can use it for the viewer
         // (trapping all even thought prev and next plugin may not be included)
         const prohibitedKeys = [
@@ -556,7 +562,7 @@ export const arcgisMap = function (config = {}) {
           alert(`Url copied to clipboard: ${json.link}`);
         } catch (err) {
           alert(
-            `Sorry, the short URL could not be copied to the clipboard: ${err}`
+            `Sorry, the short URL could not be copied to the clipboard: ${err}`,
           );
         }
       });
@@ -580,13 +586,13 @@ export const arcgisMap = function (config = {}) {
       const hashParams = new URLSearchParams(window.location.hash.substr(1));
       const center = JSON.parse(hashParams.get("center") || null);
       if (center) {
-        console.log('got center from hash params', center);
-        mapView.center = center // JSON.parse(center);
+        console.log("got center from hash params", center);
+        mapView.center = center; // JSON.parse(center);
         centreSet = true;
       }
       const zoom = JSON.parse(hashParams.get("zoom") || null);
       if (zoom) {
-        console.log('got zoom from hash params', zoom);
+        console.log("got zoom from hash params", zoom);
         mapView.zoom = zoom;
       }
       const marker = hashParams.get("marker");
@@ -604,34 +610,39 @@ export const arcgisMap = function (config = {}) {
 
       viewer.shot((shot) => {
         const id = parseInt(
-          typeof shot === "object" && shot !== null ? shot.id : shot
+          typeof shot === "object" && shot !== null ? shot.id : shot,
         );
         if (id && id !== lastShot) {
+          const doShot = function () {
+            geocamLayers.forEach((gcl, i) => {
+              const layer = gcl.layer;
+              viewer.resetProgress();
+              console.log("Querying layer for shot", layer, id);
+              layer
+                .queryFeatures({
+                  objectIds: [id],
+                  returnGeometry: true,
+                  outFields: "*",
+                  where: layer.definitionExpression,
+                })
+                .then((results) => {
+                  // eslint-disable-line no-loop-func
+                  console.log("Got results for layer", layer, results);
+                  if (results.features.length > 0) {
+                    const graphic = results.features[0];
+                    shotClick(graphic, i);
+                  }
+                });
+            });
+          };
+
           console.log("Got shot", shot, "layers", geocamLayers.length);
           if (geocamLayers.length === 0) {
-            deferredShot = shot;
+            deferredShot = doShot;
             return;
           }
-          geocamLayers.forEach((gcl, i) => {
-            const layer = gcl.layer;
-            viewer.resetProgress();
-            console.log("Querying layer for shot", layer, id);
-            layer
-              .queryFeatures({
-                objectIds: [id],
-                returnGeometry: true,
-                outFields: "*",
-                where: layer.definitionExpression,
-              })
-              .then((results) => {
-                // eslint-disable-line no-loop-func
-                console.log("Got results for layer", layer, results);
-                if (results.features.length > 0) {
-                  const graphic = results.features[0];
-                  shotClick(graphic, i);
-                }
-              });
-          });
+
+          doShot();
         } else {
           if (!shot) viewer.hide();
         }
@@ -641,13 +652,13 @@ export const arcgisMap = function (config = {}) {
     if (src) {
       // add geocam layers
       const cellUrl = `${src}/2`;
- const cellLayer = new FeatureLayer({
+      const cellLayer = new FeatureLayer({
         url: cellUrl,
         visible: false,
-         outFields: ["*"],
-    editingEnabled: true,
-       });
-        mapView.map.add(cellLayer);
+        outFields: ["*"],
+        editingEnabled: true,
+      });
+      mapView.map.add(cellLayer);
 
       const shotsUrl = `${src}/0`;
       console.log("shots url is", shotsUrl);
@@ -677,15 +688,16 @@ export const arcgisMap = function (config = {}) {
         });
 
         if (!centreSet) {
-          console.log('center not set using layer extent',layer.fullExtent)
-        mapView.extent = layer.fullExtent;
+          console.log("center not set using layer extent", layer.fullExtent);
+          mapView.extent = layer.fullExtent;
         } else {
-           console.log('center was set');
+          console.log("center was set");
           centreSet = false;
         }
 
         if (deferredShot) {
-          viewer.shot(deferredShot);
+          console.log("setting deferred shot", deferredShot);
+          deferredShot();
           deferredShot = null;
         }
       });
