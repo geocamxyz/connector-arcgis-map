@@ -360,8 +360,7 @@ const de = function(e) {
         ], g = s && s.key;
         t.visible() && b.indexOf(g) !== -1 && s.stopPropagation();
       }), a.on("immediate-click", (s) => {
-        if (!_)
-          return;
+        if (!_) return;
         const b = {
           x: s.x,
           y: s.y
