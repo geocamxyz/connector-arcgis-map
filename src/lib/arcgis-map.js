@@ -452,11 +452,14 @@ export const arcgisMap = function (config = {}) {
     });
     unsubVisible = viewer.visible((v) => updateFov(viewer.facing()));
 
-    const [GraphicsLayer, watchUtils, FeatureLayer] = await loadModules([
-      "esri/layers/GraphicsLayer",
-      "esri/core/watchUtils",
-      "esri/layers/FeatureLayer",
-    ]);
+    const [GraphicsLayer, watchUtils, FeatureLayer, Expand, rendererJsonUtils] =
+      await loadModules([
+        "esri/layers/GraphicsLayer",
+        "esri/core/watchUtils",
+        "esri/layers/FeatureLayer",
+        "esri/widgets/Expand",
+        "esri/renderers/support/jsonUtils",
+      ]);
 
     mapView.when(async () => {
       mapView.on("clickable", (e) => {
@@ -699,6 +702,79 @@ export const arcgisMap = function (config = {}) {
           console.log("setting deferred shot", deferredShot);
           deferredShot();
           deferredShot = null;
+        }
+
+        // Check for drawingInfoOptions - try sourceJSON first, fetch if needed
+        const applyDrawingInfoOptions = (options) => {
+          if (!Array.isArray(options) || options.length === 0) return;
+
+          const container = document.createElement("div");
+          container.style.padding = "10px";
+          container.style.background = "white";
+          container.style.minWidth = "150px";
+
+          const heading = document.createElement("div");
+          heading.style.marginBottom = "6px";
+          heading.style.fontWeight = "bold";
+          heading.style.fontSize = "13px";
+          heading.textContent = "Symbology";
+          container.appendChild(heading);
+
+          options.forEach((option) => {
+            const radio = document.createElement("input");
+            radio.type = "radio";
+            radio.name = "geocam-drawing-info";
+            radio.value = option.name;
+            radio.id = `geocam-di-${option.name}`;
+            radio.style.marginRight = "6px";
+            if (option.name === "Original") {
+              radio.checked = true;
+              shotsLayer.renderer = rendererJsonUtils.fromJSON(option.renderer);
+            }
+
+            radio.addEventListener("change", () => {
+              shotsLayer.renderer = rendererJsonUtils.fromJSON(option.renderer);
+            });
+
+            const optionLabel = document.createElement("label");
+            optionLabel.htmlFor = radio.id;
+            optionLabel.textContent = option.name;
+            optionLabel.style.fontSize = "13px";
+            optionLabel.style.cursor = "pointer";
+
+            const row = document.createElement("div");
+            row.style.marginBottom = "4px";
+            row.appendChild(radio);
+            row.appendChild(optionLabel);
+            container.appendChild(row);
+          });
+
+          const expandWidget = new Expand({
+            view: mapView,
+            content: container,
+            expandIconClass: "esri-icon-hollow-eye",
+            expandTooltip: "Symbology options",
+          });
+          mapView.ui.add(expandWidget, "top-right");
+        };
+
+        const sourceOptions =
+          layer.sourceJSON &&
+          layer.sourceJSON.drawingInfo &&
+          layer.sourceJSON.drawingInfo.drawingInfoOptions;
+        if (sourceOptions) {
+          applyDrawingInfoOptions(sourceOptions);
+        } else {
+          fetch(`${shotsUrl}?f=json`)
+            .then((res) => res.json())
+            .then((layerJson) => {
+              const options =
+                layerJson.drawingInfo && layerJson.drawingInfo.drawingInfoOptions;
+              applyDrawingInfoOptions(options);
+            })
+            .catch((err) => {
+              console.warn("Failed to fetch drawingInfoOptions", err);
+            });
         }
       });
 
