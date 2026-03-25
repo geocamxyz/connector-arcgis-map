@@ -667,6 +667,7 @@ export const arcgisMap = function (config = {}) {
       console.log("shots url is", shotsUrl);
       const shotsLayer = new FeatureLayer({
         url: shotsUrl,
+        outFields: ["*"],
         definitionExpression: "mod(id,100) = 0", // start with agressive simplifaction - view should get scale change early on to override this
       });
       mapView.map.add(shotsLayer);
