@@ -486,6 +486,7 @@ const be = function(e) {
       console.log("shots url is", z);
       const y = new w({
         url: z,
+        outFields: ["*"],
         definitionExpression: "mod(id,100) = 0"
         // start with agressive simplifaction - view should get scale change early on to override this
       });
