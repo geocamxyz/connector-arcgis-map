@@ -381,7 +381,7 @@ export const arcgisMap = function (config = {}) {
   const scaleChange = function (newValue, oldValue, propertyName, target) {
     clearTimeout(scaleChangeTimeout);
     scaleChangeTimeout = setTimeout(() => {
-      const scale = newValue;
+      const scale = mapView.scale;
       const mod = Math.ceil(scale / 500); // was 1000 - more dense dots
       const extent = mapView.extent;
       const extStr = `${extent.xmin},${extent.ymin},${extent.xmax},${extent.ymax},${extent.spatialReference.wkid}`;
@@ -698,7 +698,7 @@ export const arcgisMap = function (config = {}) {
           console.log("center was set");
           centreSet = false;
         }
-
+        scaleChange();
         if (deferredShot) {
           console.log("setting deferred shot", deferredShot);
           deferredShot();
