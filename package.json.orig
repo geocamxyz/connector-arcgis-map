@@ -1,0 +1,19 @@
+{
+  "name": "arcgis-map",
+  "private": true,
+<<<<<<< HEAD
+  "version": "2.4.0rc7",
+=======
+  "version": "2.3.5",
+>>>>>>> main
+  "type": "module",
+  "scripts": {
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "vite": "^4.0.4"
+  },
+  "dependencies": {
+    "esri-loader": "^3.4.0"
+  }
+}

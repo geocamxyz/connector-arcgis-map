@@ -381,7 +381,7 @@ export const arcgisMap = function (config = {}) {
   const scaleChange = function (newValue, oldValue, propertyName, target) {
     clearTimeout(scaleChangeTimeout);
     scaleChangeTimeout = setTimeout(() => {
-      const scale = newValue;
+      const scale = mapView.scale;
       const mod = Math.ceil(scale / 500); // was 1000 - more dense dots
       const extent = mapView.extent;
       const extStr = `${extent.xmin},${extent.ymin},${extent.xmax},${extent.ymax},${extent.spatialReference.wkid}`;
@@ -452,11 +452,14 @@ export const arcgisMap = function (config = {}) {
     });
     unsubVisible = viewer.visible((v) => updateFov(viewer.facing()));
 
-    const [GraphicsLayer, watchUtils, FeatureLayer] = await loadModules([
-      "esri/layers/GraphicsLayer",
-      "esri/core/watchUtils",
-      "esri/layers/FeatureLayer",
-    ]);
+    const [GraphicsLayer, watchUtils, FeatureLayer, Expand, rendererJsonUtils] =
+      await loadModules([
+        "esri/layers/GraphicsLayer",
+        "esri/core/watchUtils",
+        "esri/layers/FeatureLayer",
+        "esri/widgets/Expand",
+        "esri/renderers/support/jsonUtils",
+      ]);
 
     mapView.when(async () => {
       mapView.on("clickable", (e) => {
@@ -613,31 +616,36 @@ export const arcgisMap = function (config = {}) {
           typeof shot === "object" && shot !== null ? shot.id : shot,
         );
         if (id && id !== lastShot) {
+          const doShot = function () {
+            geocamLayers.forEach((gcl, i) => {
+              const layer = gcl.layer;
+              viewer.resetProgress();
+              console.log("Querying layer for shot", layer, id);
+              layer
+                .queryFeatures({
+                  objectIds: [id],
+                  returnGeometry: true,
+                  outFields: "*",
+                  where: layer.definitionExpression,
+                })
+                .then((results) => {
+                  // eslint-disable-line no-loop-func
+                  console.log("Got results for layer", layer, results);
+                  if (results.features.length > 0) {
+                    const graphic = results.features[0];
+                    shotClick(graphic, i);
+                  }
+                });
+            });
+          };
+
           console.log("Got shot", shot, "layers", geocamLayers.length);
           if (geocamLayers.length === 0) {
-            deferredShot = shot;
+            deferredShot = doShot;
             return;
           }
-          geocamLayers.forEach((gcl, i) => {
-            const layer = gcl.layer;
-            viewer.resetProgress();
-            console.log("Querying layer for shot", layer, id);
-            layer
-              .queryFeatures({
-                objectIds: [id],
-                returnGeometry: true,
-                outFields: "*",
-                where: layer.definitionExpression,
-              })
-              .then((results) => {
-                // eslint-disable-line no-loop-func
-                console.log("Got results for layer", layer, results);
-                if (results.features.length > 0) {
-                  const graphic = results.features[0];
-                  shotClick(graphic, i);
-                }
-              });
-          });
+
+          doShot();
         } else {
           if (!shot) viewer.hide();
         }
@@ -696,6 +704,7 @@ export const arcgisMap = function (config = {}) {
       console.log("shots url is", shotsUrl);
       const shotsLayer = new FeatureLayer({
         url: shotsUrl,
+        outFields: ["*"],
         definitionExpression: "mod(id,100) = 0", // start with agressive simplifaction - view should get scale change early on to override this
       });
       mapView.map.add(shotsLayer);
@@ -726,10 +735,84 @@ export const arcgisMap = function (config = {}) {
           console.log("center was set");
           centreSet = false;
         }
-
+        scaleChange();
         if (deferredShot) {
-          viewer.shot(deferredShot);
+          console.log("setting deferred shot", deferredShot);
+          deferredShot();
           deferredShot = null;
+        }
+
+        // Check for drawingInfoOptions - try sourceJSON first, fetch if needed
+        const applyDrawingInfoOptions = (options) => {
+          if (!Array.isArray(options) || options.length === 0) return;
+
+          const container = document.createElement("div");
+          container.style.padding = "10px";
+          container.style.background = "white";
+          container.style.minWidth = "150px";
+
+          const heading = document.createElement("div");
+          heading.style.marginBottom = "6px";
+          heading.style.fontWeight = "bold";
+          heading.style.fontSize = "13px";
+          heading.textContent = "Symbology";
+          container.appendChild(heading);
+
+          options.forEach((option) => {
+            const radio = document.createElement("input");
+            radio.type = "radio";
+            radio.name = "geocam-drawing-info";
+            radio.value = option.name;
+            radio.id = `geocam-di-${option.name}`;
+            radio.style.marginRight = "6px";
+            if (option.name === "Original") {
+              radio.checked = true;
+              shotsLayer.renderer = rendererJsonUtils.fromJSON(option.renderer);
+            }
+
+            radio.addEventListener("change", () => {
+              shotsLayer.renderer = rendererJsonUtils.fromJSON(option.renderer);
+            });
+
+            const optionLabel = document.createElement("label");
+            optionLabel.htmlFor = radio.id;
+            optionLabel.textContent = option.name;
+            optionLabel.style.fontSize = "13px";
+            optionLabel.style.cursor = "pointer";
+
+            const row = document.createElement("div");
+            row.style.marginBottom = "4px";
+            row.appendChild(radio);
+            row.appendChild(optionLabel);
+            container.appendChild(row);
+          });
+
+          const expandWidget = new Expand({
+            view: mapView,
+            content: container,
+            expandIconClass: "esri-icon-hollow-eye",
+            expandTooltip: "Symbology options",
+          });
+          mapView.ui.add(expandWidget, "top-right");
+        };
+
+        const sourceOptions =
+          layer.sourceJSON &&
+          layer.sourceJSON.drawingInfo &&
+          layer.sourceJSON.drawingInfo.drawingInfoOptions;
+        if (sourceOptions) {
+          applyDrawingInfoOptions(sourceOptions);
+        } else {
+          fetch(`${shotsUrl}?f=json`)
+            .then((res) => res.json())
+            .then((layerJson) => {
+              const options =
+                layerJson.drawingInfo && layerJson.drawingInfo.drawingInfoOptions;
+              applyDrawingInfoOptions(options);
+            })
+            .catch((err) => {
+              console.warn("Failed to fetch drawingInfoOptions", err);
+            });
         }
       });
 
