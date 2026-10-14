@@ -607,7 +607,8 @@ export const arcgisMap = function (config = {}) {
         }
       }
 
-      watchUtils.watch(mapView, "scale", scaleChange);
+      // watch extent (not just scale) so the extent in the definition expression follows pans as well as zooms
+      watchUtils.watch(mapView, "extent", scaleChange);
       scaleChange(mapView.scale); // force initial scale
       watchUtils.watch(mapView, "center", centerChange);
 
