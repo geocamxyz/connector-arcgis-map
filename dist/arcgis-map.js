@@ -445,7 +445,7 @@ const he = function(e) {
           R(t.facing(), f, g);
         }
       }
-      E.watch(s, "scale", ee), ee(s.scale), E.watch(s, "center", Oe), t.shot((u) => {
+      E.watch(s, "extent", ee), ee(s.scale), E.watch(s, "center", Oe), t.shot((u) => {
         const f = parseInt(
           typeof u == "object" && u !== null ? u.id : u
         );
