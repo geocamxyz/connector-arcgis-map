@@ -80,10 +80,10 @@ function Ve(e) {
   });
   var t = r.version, o = r.url || Ne(t);
   return new we.Promise(function(a, d) {
-    var b = ze();
-    if (b) {
-      var x = b.getAttribute("src");
-      x !== o ? d(new Error("The ArcGIS API for JavaScript is already loaded (".concat(x, ")."))) : ne() ? a(b) : pe(b, a, d);
+    var h = ze();
+    if (h) {
+      var x = h.getAttribute("src");
+      x !== o ? d(new Error("The ArcGIS API for JavaScript is already loaded (".concat(x, ")."))) : ne() ? a(h) : pe(h, a, d);
     } else if (ne())
       d(new Error("The ArcGIS API for JavaScript is already loaded."));
     else {
@@ -92,13 +92,13 @@ function Ve(e) {
         var U = v === !0;
         We(U ? t : v, r.insertCssBefore);
       }
-      b = Be(o), pe(b, function() {
-        b.setAttribute("data-esri-loader", "loaded"), a(b);
-      }, d), document.body.appendChild(b);
+      h = Be(o), pe(h, function() {
+        h.setAttribute("data-esri-loader", "loaded"), a(h);
+      }, d), document.body.appendChild(h);
     }
   });
 }
-function be(e) {
+function he(e) {
   return new we.Promise(function(r, t) {
     var o = window.require.on("error", t);
     window.require(e, function() {
@@ -110,10 +110,10 @@ function be(e) {
 }
 function Xe(e, r) {
   if (r === void 0 && (r = {}), ne())
-    return be(e);
+    return he(e);
   var t = ze(), o = t && t.getAttribute("src");
   return !r.url && o && (r.url = o), Ve(r).then(function() {
-    return be(e);
+    return he(e);
   });
 }
 const Ie = (e, r) => e.replace(/\(\?\<(.+?)\>[^)]*\)/g, (t, o) => r[o]);
@@ -126,13 +126,13 @@ Number.prototype.toDeg = function() {
 Number.prototype.to2DP = function() {
   return parseFloat(this.toFixed(2));
 };
-const he = function(e) {
+const be = function(e) {
   return Array.isArray(e) ? e : [
     e.longitude || (e.coords ? e.coords.longitude : e.geometry ? e.geometry.longitude : null),
     e.latitude || (e.coords ? e.coords.latitude : e.geometry ? e.geometry.latitude : null)
   ];
 }, ve = function(e, r) {
-  const [t, o] = he(e), [a, d] = he(r), b = a.toRad(), x = d.toRad(), v = t.toRad(), U = o.toRad(), P = Math.sin(b - v) * Math.cos(x), Z = Math.cos(U) * Math.sin(x) - Math.sin(U) * Math.cos(x) * Math.cos(b - v);
+  const [t, o] = be(e), [a, d] = be(r), h = a.toRad(), x = d.toRad(), v = t.toRad(), U = o.toRad(), P = Math.sin(h - v) * Math.cos(x), Z = Math.cos(U) * Math.sin(x) - Math.sin(U) * Math.cos(x) * Math.cos(h - v);
   return (Math.atan2(P, Z).toDeg() + 360) % 360;
 }, V = (e, r = {}, t = "") => {
   const o = document.createElement(e);
@@ -172,7 +172,7 @@ const he = function(e) {
       }
 
     `);
-  let t, o, a = [], d, b, x, v, U, P, Z, X, re, oe, I, Te, se, Le, ae = !0, ie;
+  let t, o, a = [], d, h, x, v, U, P, Z, X, re, oe, I, Te, se, Le, ae = !0, ie;
   const { mapView: s, prevNextPlugin: Q, widgets: _e, expands: et, src: D } = e, H = document.createElement("div"), ce = function(n, i, c) {
     return {
       geometry: {
@@ -315,7 +315,7 @@ const he = function(e) {
   let me, q, _;
   const ee = function(n, i, c, l) {
     clearTimeout(me), me = setTimeout(() => {
-      const p = s.scale, E = Math.ceil(p / 500), y = s.extent, R = `${y.xmin},${y.ymin},${y.xmax},${y.ymax},${y.spatialReference.wkid}`, A = `mod(id,${E}) = 0 AND extent = ${R}`;
+      const p = s.scale, E = Math.max(1, Math.ceil(p / 500)), y = s.extent, R = `${y.xmin},${y.ymin},${y.xmax},${y.ymax},${y.spatialReference.wkid}`, A = `mod(id,${E}) = 0 AND extent = ${R}`;
       a.forEach((m) => {
         m.layer.definitionExpression !== A && (m.layer.definitionExpression = A, console.log(
           "definition expression changed for",
@@ -430,7 +430,7 @@ const he = function(e) {
         s.goTo({
           center: [k.geometry.longitude, k.geometry.latitude]
         });
-      }), s.ui.add(H, "top-right"), b = t.facing((u) => {
+      }), s.ui.add(H, "top-right"), h = t.facing((u) => {
         W(u);
       });
       const j = new URLSearchParams(window.location.hash.substr(1)), z = JSON.parse(j.get("center") || null);
@@ -460,8 +460,8 @@ const he = function(e) {
                 where: N.definitionExpression
               }).then((G) => {
                 if (console.log("Got results for layer", N, G), G.features.length > 0) {
-                  const h = G.features[0];
-                  $(h, L);
+                  const b = G.features[0];
+                  $(b, L);
                 }
               });
             });
@@ -528,7 +528,7 @@ const he = function(e) {
         // start with agressive simplifaction - view should get scale change early on to override this
       });
       s.map.add(w), w.when((f) => {
-        const g = f.fields, T = g.find((h) => le(h, "filenames")), L = g.find((h) => le(h, "calibration"));
+        const g = f.fields, T = g.find((b) => le(b, "filenames")), L = g.find((b) => le(b, "calibration"));
         a.push({
           layer: w,
           shot: "id",
@@ -543,12 +543,12 @@ const he = function(e) {
           calibrationBase: ue(L.description),
           capture: "capture"
         }), _ ? (console.log("center was set"), _ = !1) : (console.log("center not set using layer extent", f.fullExtent), s.extent = f.fullExtent), ee(), q && (console.log("setting deferred shot", q), q(), q = null);
-        const N = (h) => {
-          if (!Array.isArray(h) || h.length === 0) return;
+        const N = (b) => {
+          if (!Array.isArray(b) || b.length === 0) return;
           const S = document.createElement("div");
           S.style.padding = "10px", S.style.background = "white", S.style.minWidth = "150px";
           const B = document.createElement("div");
-          B.style.marginBottom = "6px", B.style.fontWeight = "bold", B.style.fontSize = "13px", B.textContent = "Symbology", S.appendChild(B), h.forEach((Y) => {
+          B.style.marginBottom = "6px", B.style.fontWeight = "bold", B.style.fontSize = "13px", B.textContent = "Symbology", S.appendChild(B), b.forEach((Y) => {
             const O = document.createElement("input");
             O.type = "radio", O.name = "geocam-drawing-info", O.value = Y.name, O.id = `geocam-di-${Y.name}`, O.style.marginRight = "6px", Y.name === "Original" && (O.checked = !0, w.renderer = A.fromJSON(Y.renderer)), O.addEventListener("change", () => {
               w.renderer = A.fromJSON(Y.renderer);
@@ -566,11 +566,11 @@ const he = function(e) {
           });
           s.ui.add(Se, "top-right");
         }, G = f.sourceJSON && f.sourceJSON.drawingInfo && f.sourceJSON.drawingInfo.drawingInfoOptions;
-        G ? N(G) : fetch(`${z}?f=json`).then((h) => h.json()).then((h) => {
-          const S = h.drawingInfo && h.drawingInfo.drawingInfoOptions;
+        G ? N(G) : fetch(`${z}?f=json`).then((b) => b.json()).then((b) => {
+          const S = b.drawingInfo && b.drawingInfo.drawingInfoOptions;
           N(S);
-        }).catch((h) => {
-          console.warn("Failed to fetch drawingInfoOptions", h);
+        }).catch((b) => {
+          console.warn("Failed to fetch drawingInfoOptions", b);
         });
       });
       const M = `${D}/1`;
@@ -620,7 +620,7 @@ const he = function(e) {
     }
   };
   document.addEventListener("keydown", fe), document.addEventListener("keyup", ge), this.destroy = function() {
-    document.removeEventListener("keydown", fe), document.removeEventListener("keyup", ge), b(), x(), v(), Te(), Le(), U(), s.map.removeLayer(d), t.wrapper.removeChild(P);
+    document.removeEventListener("keydown", fe), document.removeEventListener("keyup", ge), h(), x(), v(), Te(), Le(), U(), s.map.removeLayer(d), t.wrapper.removeChild(P);
   };
 };
 class $e extends HTMLElement {
@@ -644,7 +644,7 @@ class $e extends HTMLElement {
         if (this.plugin)
           return;
         this.viewer = d, this.mapView = o;
-        const b = r.querySelector("geocam-viewer-prev-next-control"), x = b && b.plugin;
+        const h = r.querySelector("geocam-viewer-prev-next-control"), x = h && h.plugin;
         this.plugin = new Ke({ mapView: o, prevNextPlugin: x, src: a }), this.viewer.plugin(this.plugin);
         const v = r.querySelector("geocam-viewer-screen-shot");
         v && v.plugin && v.plugin.arcgisView(o);

@@ -382,7 +382,12 @@ export const arcgisMap = function (config = {}) {
     clearTimeout(scaleChangeTimeout);
     scaleChangeTimeout = setTimeout(() => {
       const scale = mapView.scale;
-      const mod = Math.ceil(scale / 500); // was 1000 - more dense dots
+      // Floored at 1. A scale of 0 — which the view reports transiently while
+      // it is still settling — otherwise yields mod 0, and `mod(id,0)` is a
+      // division by zero in Postgres: the service answers 500 and the layer
+      // silently fails to draw. 1 means "every row", which is what a zero
+      // sampling interval was asking for.
+      const mod = Math.max(1, Math.ceil(scale / 500)); // was 1000 - more dense dots
       const extent = mapView.extent;
       const extStr = `${extent.xmin},${extent.ymin},${extent.xmax},${extent.ymax},${extent.spatialReference.wkid}`;
       const definitionExpression = `mod(id,${mod}) = 0 AND extent = ${extStr}`;
