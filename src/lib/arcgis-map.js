@@ -397,7 +397,18 @@ export const arcgisMap = function (config = {}) {
         }
       });
       zoomStore(mapView.zoom);
-      updateFov(viewer.facing());
+      // NO updateFov() here. It used to run on every extent change, and each
+      // run produced a new extent — so with the panorama open (the only state
+      // in which updateFov does any work) the two sustained each other at
+      // ~2Hz, forever. Every Expand widget sets autoCollapse, so nothing in
+      // the map UI could be opened: it collapsed on the next tick, ~18ms later.
+      //
+      // Dropping it loses nothing. The marker's symbol is a fixed size
+      // (fovGraphic's `proportion` is hard-coded, the scale-based sizing is
+      // commented out) and this call passed no position, so it rebuilt an
+      // identical graphic in the same place. The real triggers — shot
+      // selection, facing, and the pano opening or closing — all call
+      // updateFov themselves.
     }, 500);
   };
 

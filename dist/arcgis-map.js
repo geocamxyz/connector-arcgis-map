@@ -221,7 +221,7 @@ const he = function(e) {
     };
   };
   let K = null;
-  const R = function(n, i, c) {
+  const W = function(n, i, c) {
     d && (d.removeAll(), t.visible() ? (H.classList.remove("esri-disabled"), n !== null && (Z() ? (s.rotation = n * -1, n = 0, (c || c === 0) && s.goTo({
       center: [i, c]
     })) : s.rotation = 0, k = ce(
@@ -284,7 +284,7 @@ const he = function(e) {
         rig_id: n.attributes[l.rigId],
         calibration: n.attributes[l.calibration]
       })
-    ), y = n.attributes[l.yaw], Y = n.attributes[l.rotation], A = X() && l.brightness ? n.attributes[l.brightness] : null;
+    ), y = n.attributes[l.yaw], R = n.attributes[l.rotation], A = X() && l.brightness ? n.attributes[l.brightness] : null;
     re = A;
     const m = F(
       n.attributes.exposure_us,
@@ -306,7 +306,7 @@ const he = function(e) {
       const M = ve(n.geometry, c);
       t.facing(M);
     }
-    t.show(w, y, E, Y, A, z), R(
+    t.show(w, y, E, R, A, z), W(
       t.facing(),
       n.geometry.longitude,
       n.geometry.latitude
@@ -315,14 +315,14 @@ const he = function(e) {
   let me, q, _;
   const ee = function(n, i, c, l) {
     clearTimeout(me), me = setTimeout(() => {
-      const p = s.scale, E = Math.ceil(p / 500), y = s.extent, Y = `${y.xmin},${y.ymin},${y.xmax},${y.ymax},${y.spatialReference.wkid}`, A = `mod(id,${E}) = 0 AND extent = ${Y}`;
+      const p = s.scale, E = Math.ceil(p / 500), y = s.extent, R = `${y.xmin},${y.ymin},${y.xmax},${y.ymax},${y.spatialReference.wkid}`, A = `mod(id,${E}) = 0 AND extent = ${R}`;
       a.forEach((m) => {
         m.layer.definitionExpression !== A && (m.layer.definitionExpression = A, console.log(
           "definition expression changed for",
           m.layer,
           A
         ));
-      }), oe(s.zoom), R(t.facing());
+      }), oe(s.zoom);
     }, 500);
   }, Oe = function(n, i, c, l) {
     se([s.center.longitude, s.center.latitude]);
@@ -343,15 +343,15 @@ const he = function(e) {
       P.setAttribute(
         "title",
         m ? "turn auto-rotate off" : "turn auto-rotate on"
-      ), R(
+      ), W(
         t.facing(),
         k.geometry.longitude,
         k.geometry.latitude
       );
     }), X = t.store("autobrightness"), v = X((m) => {
       t.reload(m ? re : "[1,1,1]");
-    }), U = t.visible((m) => R(t.facing()));
-    const [p, E, y, Y, A] = await Xe([
+    }), U = t.visible((m) => W(t.facing()));
+    const [p, E, y, R, A] = await Xe([
       "esri/layers/GraphicsLayer",
       "esri/core/watchUtils",
       "esri/layers/FeatureLayer",
@@ -431,7 +431,7 @@ const he = function(e) {
           center: [k.geometry.longitude, k.geometry.latitude]
         });
       }), s.ui.add(H, "top-right"), b = t.facing((u) => {
-        R(u);
+        W(u);
       });
       const j = new URLSearchParams(window.location.hash.substr(1)), z = JSON.parse(j.get("center") || null);
       z && (console.log("got center from hash params", z), s.center = z, _ = !0);
@@ -442,7 +442,7 @@ const he = function(e) {
         const u = JSON.parse(M);
         if (u) {
           const [f, g] = u;
-          R(t.facing(), f, g);
+          W(t.facing(), f, g);
         }
       }
       E.watch(s, "extent", ee), ee(s.scale), E.watch(s, "center", Oe), t.shot((u) => {
@@ -548,17 +548,17 @@ const he = function(e) {
           const S = document.createElement("div");
           S.style.padding = "10px", S.style.background = "white", S.style.minWidth = "150px";
           const B = document.createElement("div");
-          B.style.marginBottom = "6px", B.style.fontWeight = "bold", B.style.fontSize = "13px", B.textContent = "Symbology", S.appendChild(B), h.forEach((W) => {
+          B.style.marginBottom = "6px", B.style.fontWeight = "bold", B.style.fontSize = "13px", B.textContent = "Symbology", S.appendChild(B), h.forEach((Y) => {
             const O = document.createElement("input");
-            O.type = "radio", O.name = "geocam-drawing-info", O.value = W.name, O.id = `geocam-di-${W.name}`, O.style.marginRight = "6px", W.name === "Original" && (O.checked = !0, w.renderer = A.fromJSON(W.renderer)), O.addEventListener("change", () => {
-              w.renderer = A.fromJSON(W.renderer);
+            O.type = "radio", O.name = "geocam-drawing-info", O.value = Y.name, O.id = `geocam-di-${Y.name}`, O.style.marginRight = "6px", Y.name === "Original" && (O.checked = !0, w.renderer = A.fromJSON(Y.renderer)), O.addEventListener("change", () => {
+              w.renderer = A.fromJSON(Y.renderer);
             });
             const C = document.createElement("label");
-            C.htmlFor = O.id, C.textContent = W.name, C.style.fontSize = "13px", C.style.cursor = "pointer";
+            C.htmlFor = O.id, C.textContent = Y.name, C.style.fontSize = "13px", C.style.cursor = "pointer";
             const J = document.createElement("div");
             J.style.marginBottom = "4px", J.appendChild(O), J.appendChild(C), S.appendChild(J);
           });
-          const Se = new Y({
+          const Se = new R({
             view: s,
             content: S,
             expandIconClass: "esri-icon-hollow-eye",
