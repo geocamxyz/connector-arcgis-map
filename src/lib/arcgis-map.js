@@ -50,6 +50,55 @@ const bearing = function (p1, p2) {
   return (brng + 360) % 360;
 };
 
+// --- basemap URL state -------------------------------------------------------
+//
+// A Basemap's own `id` is stable only for Esri's well-known basemaps ("satellite",
+// "topo-vector", …). One backed by a portal item gets a generated per-session id
+// like "1a1ccad3fa1-basemap-27", which means nothing on the next load — and every
+// entry in the BasemapGallery's default PortalBasemapsSource is a portal item, so
+// that is the common case, not the exotic one. Only `portalItem.id` survives, so
+// prefer it and tag it `item:` to record which kind it is.
+// Returns null for a basemap that cannot be named in a way that survives a reload,
+// which is the signal to leave it out of the URL entirely.
+const serializeBasemap = function (Basemap, basemap) {
+  if (!basemap) return null;
+  const portalItemId = basemap.portalItem && basemap.portalItem.id;
+  if (portalItemId) return `item:${portalItemId}`;
+  // A web map can inline its basemap rather than reference one: no portalItem, and
+  // an `id` generated per session like "1a1c4355c90-basemap-2". Publishing that
+  // would put a token in the URL that resolves to nothing next load — and warns on
+  // the way past. fromId is the cheap test for "is this a real well-known id".
+  if (!Basemap || !basemap.id) return null;
+  return Basemap.fromId(basemap.id) ? basemap.id : null;
+};
+
+// Resolves to a loaded Basemap, or null if the value names nothing real — the
+// caller then leaves the current basemap alone rather than blanking the map.
+const basemapFromRef = async function (Basemap, value, logPrefix) {
+  if (!value) return null;
+  if (value.startsWith("item:")) {
+    const basemap = new Basemap({ portalItem: { id: value.slice(5) } });
+    try {
+      await basemap.load();
+      return basemap;
+    } catch (e) {
+      console.warn(
+        `${logPrefix}: basemap portal item "${value.slice(5)}" from the URL could not be loaded, keeping the current basemap`,
+        e,
+      );
+      return null;
+    }
+  }
+  // fromId returns null for anything it does not recognise; it does not throw.
+  const basemap = Basemap.fromId(value);
+  if (!basemap) {
+    console.warn(
+      `${logPrefix}: unknown basemap "${value}" in the URL, keeping the current basemap`,
+    );
+  }
+  return basemap;
+};
+
 const node = (name, attrs = {}, content = "") => {
   const node = document.createElement(name);
   for (let i in attrs) {
@@ -138,6 +187,9 @@ export const arcgisMap = function (config = {}) {
     unsubZoom,
     centerStore,
     unsubCenter,
+    basemapStore,
+    unsubBasemap,
+    esriBasemap,
     clickable = true,
     fovMarkerStore;
 
@@ -421,11 +473,27 @@ export const arcgisMap = function (config = {}) {
     centerStore([mapView.center.longitude, mapView.center.latitude]);
   };
 
+  const basemapChange = function (newValue) {
+    const ref = serializeBasemap(esriBasemap, newValue);
+    if (ref) basemapStore(ref);
+  };
+
+  // Store -> map. The equality check is what stops this chasing its own tail: a
+  // gallery pick writes the store, which calls back here, and without it we would
+  // rebuild and reload an identical basemap (a visible flicker) every time.
+  const applyBasemap = async function (ref) {
+    if (!ref || !esriBasemap) return;
+    if (ref === serializeBasemap(esriBasemap, mapView.map.basemap)) return;
+    const basemap = await basemapFromRef(esriBasemap, ref, "arcgis-map");
+    if (basemap) mapView.map.basemap = basemap;
+  };
+
   this.init = async function (geocamViewer) {
     viewer = geocamViewer;
     fovMarkerStore = viewer.store("marker");
     zoomStore = viewer.store("zoom");
     centerStore = viewer.store("center");
+    basemapStore = viewer.store("basemap");
 
     viewlock = viewer.store("viewlock");
 
@@ -468,14 +536,22 @@ export const arcgisMap = function (config = {}) {
     });
     unsubVisible = viewer.visible((v) => updateFov(viewer.facing()));
 
-    const [GraphicsLayer, watchUtils, FeatureLayer, Expand, rendererJsonUtils] =
-      await loadModules([
-        "esri/layers/GraphicsLayer",
-        "esri/core/watchUtils",
-        "esri/layers/FeatureLayer",
-        "esri/widgets/Expand",
-        "esri/renderers/support/jsonUtils",
-      ]);
+    const [
+      GraphicsLayer,
+      watchUtils,
+      FeatureLayer,
+      Expand,
+      rendererJsonUtils,
+      Basemap,
+    ] = await loadModules([
+      "esri/layers/GraphicsLayer",
+      "esri/core/watchUtils",
+      "esri/layers/FeatureLayer",
+      "esri/widgets/Expand",
+      "esri/renderers/support/jsonUtils",
+      "esri/Basemap",
+    ]);
+    esriBasemap = Basemap;
 
     mapView.when(async () => {
       mapView.on("clickable", (e) => {
@@ -622,6 +698,20 @@ export const arcgisMap = function (config = {}) {
           updateFov(viewer.facing(), lng, lat);
         }
       }
+
+      // Basemap is driven off its store rather than read once from the hash the way
+      // zoom and center are, because Back/forward has to work: url-fragments writes
+      // the store on popstate and hashchange, and a one-shot read would leave the
+      // map on whatever it happened to be showing. Subscribing fires immediately
+      // with whatever the URL put there, so this covers the initial load too — by
+      // which point we are inside mapView.when, so the web map's own basemap has
+      // already loaded and assigning over it is the override, not a race.
+      unsubBasemap = basemapStore(applyBasemap);
+      // Nothing in the URL: publish what the map came up with, so a link copied
+      // without ever opening the gallery still carries it.
+      if (!basemapStore()) basemapChange(mapView.map.basemap);
+      // Deep watch: the gallery swaps the whole basemap object on the map.
+      watchUtils.watch(mapView, "map.basemap", basemapChange);
 
       // watch extent (not just scale) so the extent in the definition expression follows pans as well as zooms
       watchUtils.watch(mapView, "extent", scaleChange);
@@ -908,6 +998,7 @@ export const arcgisMap = function (config = {}) {
     unsubAutobrightness();
     unsubZoom();
     unsubCenter();
+    if (unsubBasemap) unsubBasemap();
     unsubVisible();
     mapView.map.removeLayer(fovLayer);
     viewer.wrapper.removeChild(autoRotateElement);
